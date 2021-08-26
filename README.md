@@ -5,6 +5,8 @@
 
 This repo has been created with `yarn`. 
 To be able to test the action also install [`act`](https://github.com/nektos/act).
+Further, to publish the action without `node_modules` coming in the way,
+install [ncc](https://www.npmjs.com/package/@vercel/ncc).
 
 ## Info
 
