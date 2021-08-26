@@ -69,6 +69,7 @@ Adapt this action to one we can use to check the
 - logo files in the wrong format (not SVG / PNG / JPG)
 - (only for bonus-points: image sizes)
 - categories not in the `CATEGORY_MAPPING`
+- adapt this README file to the functionality of the final action
 
 Find [`gray-matter`](https://www.npmjs.com/package/gray-matter) already
 installed to work with Markdown & Frontmatter.
