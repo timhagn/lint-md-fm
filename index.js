@@ -23,10 +23,11 @@ try {
 
   // Only continue if any files have changed.
   if (changedFiles.length) {
-    core.notice(`Testing extensions... ${JSON.stringify(changedFiles)}`);
+    const changedFilesArray = changedFiles.split(",");
+    core.notice(`Testing extensions... ${JSON.stringify(changedFilesArray)}`);
     const extensionResult = testExtensions(
       extensions,
-      changedFiles,
+      changedFilesArray,
       directories
     );
     if (extensionResult.status !== STATUS.VALID) {
@@ -37,7 +38,7 @@ try {
     core.notice("Testing Markdown Frontmatter...");
     const markdownResult = testFrontmatter(
       markdownExtensions,
-      changedFiles,
+      changedFilesArray,
       directories
     );
 
@@ -46,7 +47,9 @@ try {
       core.setFailed(JSON.stringify(markdownResult));
     }
 
-    core.notice(`Result: ${JSON.stringify({ extensionResult, markdownResult })}`);
+    core.notice(
+      `Result: ${JSON.stringify({ extensionResult, markdownResult })}`
+    );
     core.setOutput(
       "changed",
       JSON.stringify({ extensionResult, markdownResult })
