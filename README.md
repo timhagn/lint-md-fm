@@ -57,7 +57,7 @@ Which files where changed.
 ```yaml
       - name: Lint Current PR
         id: lint
-        uses: timhagn/lint-md-fm@v1.0.9
+        uses: timhagn/lint-md-fm@v1.0.12
         with:
           changed-files: ${{ steps.changed_files.outputs.all_modified_files }}
           directories: |
