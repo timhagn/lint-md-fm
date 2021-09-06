@@ -19,7 +19,10 @@ const testExtensions = (extensions, changedFiles, directories) => {
       if (filePath.includes(directory)) {
         const extension = path.extname(filePath);
         if (!extensions.includes(extension)) {
-          result.errors.push(ERRORS.EXTENSION_INVALID);
+          result.errors.push({
+            error: ERRORS.EXTENSION_INVALID,
+            file: filePath,
+          });
         }
       }
     });
