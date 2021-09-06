@@ -10,7 +10,10 @@ function checkMarkdown(markdown) {
   };
   if (parsed.data) {
     if (parsed.data.category) {
-      if (CATEGORIES.indexOf(parsed.data.category) < 0) {
+      const categories = parsed.data.category
+                          .split(',')
+                          .map((cat) => cat.trim().toLowerCase());
+      if (categories.some((cat) => CATEGORIES.indexOf(cat) < 0)) {
         result.errors.push(ERRORS.CATEGORY_INVALID);
       }
     } else {
