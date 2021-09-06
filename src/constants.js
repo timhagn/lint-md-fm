@@ -9,7 +9,36 @@ const STATUS = {
 
 const ERRORS = {
   EXTENSION_INVALID: "EXTENSION_IS_INVALID",
+  DATA_INVALID: 'DATA_INVALID',
+  CATEGORY_INVALID: 'CATEGORY_INVALID',
+  CATEGORY: 'CATEGORY_NOT_EXIST',
+  SLUG: 'SLUG_NOT_EXIST',
+  DATE: 'DATE_NOT_EXIST',
+  TITLE: 'TITLE_NOT_EXIST',
+  LOGLINE: 'LOGLINE_NOT_EXIST',
+  CTA: 'CTA_NOT_EXIST',
+  LOGO: 'LOGO_NOT_EXIST',
+  STATUS: 'STATUS_NOT_EXIST',
 };
+
+const CATEGORIES = [
+  'amm',
+  'app',
+  'defi',
+  'dex',
+  'exchange',
+  'explorer',
+  'governance',
+  'infra',
+  'oracle',
+  'spl',
+  'stablecoin',
+  'tools',
+  'nft',
+  'wallet',
+  'fund',
+  'investmentfund'
+];
 
 module.exports = {
   DEFAULT_FOLDERS,
@@ -17,4 +46,5 @@ module.exports = {
   DEFAULT_IMAGE_EXTENSIONS,
   STATUS,
   ERRORS,
+  CATEGORIES,
 };
