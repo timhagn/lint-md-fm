@@ -5801,7 +5801,10 @@ const testExtensions = (extensions, changedFiles, directories) => {
       if (filePath.includes(directory)) {
         const extension = path.extname(filePath);
         if (!extensions.includes(extension)) {
-          result.errors.push(ERRORS.EXTENSION_INVALID);
+          result.errors.push({
+            error: ERRORS.EXTENSION_INVALID,
+            file: filePath,
+          });
         }
       }
     });
@@ -5851,7 +5854,7 @@ const testFrontmatter = (markdownExtensions, changedFiles, directories) => {
           const markdownData = fs.readFileSync(filePath, "utf8");
           const markdownResult = checkMarkdown(markdownData);
           result.status = markdownResult.status;
-          result.errors = [...result.errors, ...markdownResult.errors];
+          result.errors.push({ errors: markdownResult.errors, file: filePath });
         }
       }
     });
@@ -5951,7 +5954,6 @@ const { testFrontmatter } = __nccwpck_require__(2989);
 try {
   // Get all inputs or fall back to defaults.
   const changedFiles = core.getInput("changed-files");
-  core.notice(`Files changed before running: ${changedFiles}`);
   const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
   const markdownExtensions =
     core.getMultilineInput("markdown-extensions") ||
@@ -5963,7 +5965,7 @@ try {
   // Only continue if any files have changed.
   if (changedFiles.length) {
     const changedFilesArray = changedFiles.split(",");
-    core.notice(`Testing extensions... ${JSON.stringify(changedFilesArray)} ${changedFiles}`);
+    core.notice(`Testing extensions...`);
     const extensionResult = testExtensions(
       extensions,
       changedFilesArray,
