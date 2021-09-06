@@ -5951,6 +5951,7 @@ const { testFrontmatter } = __nccwpck_require__(2989);
 try {
   // Get all inputs or fall back to defaults.
   const changedFiles = core.getInput("changed-files");
+  core.notice(`Files changed before running: ${changedFiles}`);
   const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
   const markdownExtensions =
     core.getMultilineInput("markdown-extensions") ||
@@ -5961,10 +5962,11 @@ try {
 
   // Only continue if any files have changed.
   if (changedFiles.length) {
-    core.notice("Testing extensions...");
+    const changedFilesArray = changedFiles.split(",");
+    core.notice(`Testing extensions... ${JSON.stringify(changedFilesArray)} ${changedFiles}`);
     const extensionResult = testExtensions(
       extensions,
-      changedFiles,
+      changedFilesArray,
       directories
     );
     if (extensionResult.status !== STATUS.VALID) {
@@ -5975,7 +5977,7 @@ try {
     core.notice("Testing Markdown Frontmatter...");
     const markdownResult = testFrontmatter(
       markdownExtensions,
-      changedFiles,
+      changedFilesArray,
       directories
     );
 
@@ -5984,7 +5986,9 @@ try {
       core.setFailed(JSON.stringify(markdownResult));
     }
 
-    core.notice(`Result: ${JSON.stringify({ extensionResult, markdownResult })}`);
+    core.notice(
+      `Result: ${JSON.stringify({ extensionResult, markdownResult })}`
+    );
     core.setOutput(
       "changed",
       JSON.stringify({ extensionResult, markdownResult })

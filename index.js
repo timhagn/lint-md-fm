@@ -13,6 +13,7 @@ const { testFrontmatter } = require("./src/testFrontmatter");
 try {
   // Get all inputs or fall back to defaults.
   const changedFiles = core.getInput("changed-files");
+  core.notice(`Files changed before running: ${changedFiles}`);
   const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
   const markdownExtensions =
     core.getMultilineInput("markdown-extensions") ||
