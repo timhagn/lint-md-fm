@@ -12,8 +12,11 @@ inputs:
   directories:
     description: 'Multiple directories to search in'
     required: true
-  extensions:
-    description: 'Multiple extensions to check for'
+  markdown-extensions:
+    description: 'Multiple extensions of Markdown files to check for'
+    required: true
+  image-extensions:
+    description: 'Multiple extensions of image files to check for'
     required: true
 
 runs:

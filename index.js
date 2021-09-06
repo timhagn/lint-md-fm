@@ -7,7 +7,9 @@ const { STATUS } = require("./src/constants");
 try {
   const changedFiles = core.getInput("changed-files");
   const directories = core.getMultilineInput("directories");
-  const extensions = core.getMultilineInput("extensions");
+  const markdownExtensions = core.getMultilineInput("markdown-extensions");
+  const imageExtensions = core.getMultilineInput("image-extensions");
+  const extensions = [...markdownExtensions, ...imageExtensions];
   if (changedFiles.length) {
     const extensionResult = testExtensions(
       extensions,
