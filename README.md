@@ -45,7 +45,6 @@ the log.
 | directories          | true         | Multiple directories to search in.                                                                             |
 | markdown-extensions  | true         | Multiple extensions of Markdown files to check for.                                                            |
 | image-extensions     | true         | Multiple extensions of image files to check for.                                                               |
-|----------------------|--------------|----------------------------------------------------------------------------------------------------------------|
 
 ## Outputs
 
