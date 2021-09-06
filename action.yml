@@ -1,13 +1,10 @@
 name: 'Lint Markdown & Frontmatter'
 description: 'GitHub Action linting markdown &amp; its frontmatter content.'
-inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "composite"
+  steps:
+    - name: Get list of changed files
+      uses: AvraamMavridis/files-changed-action@v3
+      id: changed_files
+    - uses: 'node12'
+      run: 'index.js'
