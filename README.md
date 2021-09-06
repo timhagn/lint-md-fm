@@ -80,11 +80,11 @@ Which files where changed.
 Adapt this action to one we can use to check the
 [ecosystem projects](https://github.com/solana-labs/ecosystem) for:
 
-- [ ] project files in a PR not correctly named `{project-name}.md` with `.md` ext
+- [x] project files in a PR not correctly named `{project-name}.md` with `.md` ext
 - [ ] missing or misnamed logo files
 - [ ] logo files in the wrong format (not SVG / PNG / JPG)
 - [ ] (only for bonus-points: image sizes)
-- [ ] categories not in the `CATEGORY_MAPPING`
+- [x] categories not in the `CATEGORY_MAPPING`
 - [ ] adapt this README file to the functionality of the final action
 
 Find [`gray-matter`](https://www.npmjs.com/package/gray-matter) already
