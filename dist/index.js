@@ -6318,9 +6318,7 @@ const github = __nccwpck_require__(527);
 
 try {
   const changedFiles = core.getInput("CHANGED_FILES");
-  core.setFailed(JSON.stringify(changedFiles));
-  const time = new Date().toTimeString();
-  core.setOutput("time", time);
+  core.setOutput("changed", JSON.stringify(changedFiles));
   // Get the JSON webhook payload for the event that triggered the workflow
   const payload = JSON.stringify(github.context.payload, undefined, 2);
   core.debug(`The event payload: ${payload}`);
