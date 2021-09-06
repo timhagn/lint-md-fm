@@ -1,5 +1,5 @@
-const DEFAULT_MARKDOWN_EXTENSIONS = ["md", "mdx"];
-const DEFAULT_IMAGE_EXTENSIONS = ["svg", "png", "jpg", "jpeg"];
+const DEFAULT_MARKDOWN_EXTENSIONS = [".md", ".mdx"];
+const DEFAULT_IMAGE_EXTENSIONS = [".svg", ".png", ".jpg", ".jpeg"];
 const DEFAULT_FOLDERS = ["img, projects"]
 
 const STATUS = {

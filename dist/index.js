@@ -5854,7 +5854,7 @@ const testFrontmatter = (markdownExtensions, changedFiles, directories) => {
           const markdownData = fs.readFileSync(filePath, "utf8");
           const markdownResult = checkMarkdown(markdownData);
           result.status = markdownResult.status;
-          result.errors.push({ errors: markdownResult.errors, file: filePath });
+          result.errors.push({ ...markdownResult.errors, file: filePath });
         }
       }
     });
