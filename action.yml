@@ -1,10 +1,5 @@
 name: 'Lint Markdown & Frontmatter'
 description: 'GitHub Action linting markdown &amp; its frontmatter content.'
 runs:
-  using: "composite"
-  steps:
-    - name: Get list of changed files
-      uses: AvraamMavridis/files-changed-action@v3
-      id: changed_files
-    - uses: 'node12'
-      run: 'index.js'
+  using: 'node12'
+  main: 'dist/index.js'
