@@ -3,6 +3,10 @@ description: 'GitHub Action linting markdown &amp; its frontmatter content.'
 outputs:
   changed: # id of output
     description: 'The changed files'
+inputs:
+  changed-files:
+    description: 'Files to lint'
+    required: true
 runs:
   using: 'node12'
   main: 'dist/index.js'
