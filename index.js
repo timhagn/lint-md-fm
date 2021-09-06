@@ -24,7 +24,7 @@ try {
   // Only continue if any files have changed.
   if (changedFiles.length) {
     const changedFilesArray = changedFiles.split(",");
-    core.notice(`Testing extensions... ${JSON.stringify(changedFilesArray)}`);
+    core.notice(`Testing extensions... ${JSON.stringify(changedFilesArray)} ${changedFiles}`);
     const extensionResult = testExtensions(
       extensions,
       changedFilesArray,
