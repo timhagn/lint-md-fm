@@ -3,7 +3,7 @@ const github = require("@actions/github");
 
 try {
   const changedFiles = core.getInput("CHANGED_FILES");
-  core.debug(JSON.stringify(changedFiles));
+  core.setFailed(JSON.stringify(changedFiles));
   const time = new Date().toTimeString();
   core.setOutput("time", time);
   // Get the JSON webhook payload for the event that triggered the workflow
