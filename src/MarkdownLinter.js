@@ -41,87 +41,49 @@ function checkMarkdown(markdown) {
   const parsed = matter(markdown);
   let result = {
     status: STATUS.VALID,
-    error: null,
-    message: ''
+    errors: []
   };
   if (parsed.data) {
     if (parsed.data.category) {
       if (CATEGORIES.indexOf(parsed.data.category) < 0) {
-        result = {
-          status: STATUS.INVALID,
-          error: ERRORS.CATEGORY_INVALID,
-          message: `"${parsed.data.category}" is not a valid category.`
-        };
+        result.errors.push(ERRORS.CATEGORY_INVALID);
       }
     } else {
-      result = {
-        status: STATUS.INVALID,
-        error: ERRORS.CATEGORY,
-        message: 'The category tag is missing.'
-      };
+      result.errors.push(ERRORS.CATEGORY);
     }
 
     if (!parsed.data.slug) {
-      result = {
-        status: STATUS.INVALID,
-        error: ERRORS.SLUG,
-        message: 'The slug tag is missing.'
-      };
+      result.errors.push(ERRORS.SLUG);
     }
 
     if (!parsed.data.date) {
-      result = {
-        status: STATUS.INVALID,
-        error: ERRORS.DATE,
-        message: 'The date tag is missing.'
-      };
+      result.errors.push(ERRORS.DATE);
     }
 
     if (!parsed.data.title) {
-      result = {
-        status: STATUS.INVALID,
-        error: ERRORS.TITLE,
-        message: 'The title tag is missing.'
-      };
+      result.errors.push(ERRORS.TITLE);
     }
 
     if (!parsed.data.logline) {
-      result = {
-        status: STATUS.INVALID,
-        error: ERRORS.LOGLINE,
-        message: 'The logline tag is missing.'
-      };
+      result.errors.push(ERRORS.LOGLINE);
     }
 
     if (!parsed.data.cta) {
-      result = {
-        status: STATUS.INVALID,
-        error: ERRORS.CTA,
-        message: 'The cta tag is missing.'
-      };
+      result.errors.push(ERRORS.CTA);
     }
 
     if (!parsed.data.logo) {
-      result = {
-        status: STATUS.INVALID,
-        error: ERRORS.LOGO,
-        message: 'The logo tag is missing.'
-      };
+      result.errors.push(ERRORS.LOGO);
     }
 
     if (!parsed.data.status) {
-      result = {
-        status: STATUS.INVALID,
-        error: ERRORS.STATUS,
-        message: 'The status tag is missing.'
-      };
+      result.errors.push(ERRORS.STATUS);
     }
   } else {
-    result = {
-      status: STATUS.INVALID,
-      error: ERRORS.DATA_INVALID,
-      message: 'Markdown is in invalid format.'
-    }
+    result.errors.push(ERRORS.DATA_INVALID);
+  }
+  if (result.errors.length > 0) {
+    result.status = STATUS.INVALID;
   }
 
   return result;
