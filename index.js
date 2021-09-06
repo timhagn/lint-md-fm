@@ -23,7 +23,7 @@ try {
 
   // Only continue if any files have changed.
   if (changedFiles.length) {
-    core.notice("Testing extensions...");
+    core.notice(`Testing extensions... ${JSON.stringify(changedFiles)}`);
     const extensionResult = testExtensions(
       extensions,
       changedFiles,
