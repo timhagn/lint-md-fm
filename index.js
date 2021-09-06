@@ -17,8 +17,10 @@ try {
     if (extensionResult.status !== STATUS.VALID) {
       core.setFailed(JSON.stringify(extensionResult));
     }
+    core.setOutput("changed", JSON.stringify(extensionResult));
+  } else {
+    core.setFailed("No files changed!");
   }
-  core.setOutput("changed", JSON.stringify(changedFiles));
 } catch (error) {
   core.setFailed(error.message);
 }
