@@ -4,6 +4,14 @@ const fs = require("fs");
 const { STATUS } = require("./constants");
 const { checkMarkdown } = require("./MarkdownLinter");
 
+/**
+ * Loops over all files in all directories and checks Markdown Frontmatter.
+ *
+ * @param markdownExtensions
+ * @param changedFiles
+ * @param directories
+ * @returns {{errors: *[], status: string}}
+ */
 const testFrontmatter = (markdownExtensions, changedFiles, directories) => {
   let result = {
     status: STATUS.VALID,

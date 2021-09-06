@@ -1,6 +1,14 @@
 const path = require("path");
 const { STATUS, ERRORS } = require("./constants");
 
+/**
+ * Loops over all files in all directories and checks their extensions.
+ *
+ * @param extensions
+ * @param changedFiles
+ * @param directories
+ * @returns {{errors: *[], status: string}}
+ */
 const testExtensions = (extensions, changedFiles, directories) => {
   let result = {
     status: STATUS.VALID,

@@ -2,18 +2,28 @@ const core = require("@actions/core");
 // const github = require("@actions/github");
 // const exec = require("@actions/exec");
 const { testExtensions } = require("./src/testExtensions");
-const { STATUS } = require("./src/constants");
+const {
+  STATUS,
+  DEFAULT_FOLDERS,
+  DEFAULT_MARKDOWN_EXTENSIONS,
+  DEFAULT_IMAGE_EXTENSIONS,
+} = require("./src/constants");
 const { testFrontmatter } = require("./src/testFrontmatter");
 
 try {
+  // Get all inputs or fall back to defaults.
   const changedFiles = core.getInput("changed-files");
-  const directories = core.getMultilineInput("directories");
-  const markdownExtensions = core.getMultilineInput("markdown-extensions");
-  const imageExtensions = core.getMultilineInput("image-extensions");
+  const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
+  const markdownExtensions =
+    core.getMultilineInput("markdown-extensions") ||
+    DEFAULT_MARKDOWN_EXTENSIONS;
+  const imageExtensions =
+    core.getMultilineInput("image-extensions") || DEFAULT_IMAGE_EXTENSIONS;
   const extensions = [...markdownExtensions, ...imageExtensions];
 
+  // Only continue if any files have changed.
   if (changedFiles.length) {
-    core.notice('Testing extensions...')
+    core.notice("Testing extensions...");
     const extensionResult = testExtensions(
       extensions,
       changedFiles,
@@ -24,7 +34,7 @@ try {
       core.setFailed(JSON.stringify(extensionResult));
     }
 
-    core.notice('Testing Markdown Frontmatter...')
+    core.notice("Testing Markdown Frontmatter...");
     const markdownResult = testFrontmatter(
       markdownExtensions,
       changedFiles,
@@ -36,7 +46,11 @@ try {
       core.setFailed(JSON.stringify(markdownResult));
     }
 
-    core.setOutput("changed", JSON.stringify(extensionResult));
+    core.notice(`Result: ${JSON.stringify({ extensionResult, markdownResult })}`);
+    core.setOutput(
+      "changed",
+      JSON.stringify({ extensionResult, markdownResult })
+    );
   } else {
     core.setFailed("No files changed!");
   }
