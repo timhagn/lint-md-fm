@@ -5857,9 +5857,9 @@ const testFrontmatter = (markdownExtensions, changedFiles, directory) => {
         const markdownData = fs.readFileSync(filePath, "utf8");
         const markdownResult = checkMarkdown(markdownData);
         let errors = markdownResult.errors || [];
-        if (result.logo) {
+        if (markdownResult.logo) {
           // Check logo error
-          if (!fs.existsSync(result.logo.slice(1))) {    // remove "/" at the beginning of the image path
+          if (!fs.existsSync(markdownResult.logo.slice(1))) {    // remove "/" at the beginning of the image path
             // logo file doesn't exist
             errors.push(ERRORS.LOGO_FILE);
           }
