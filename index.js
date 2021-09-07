@@ -59,11 +59,11 @@ try {
     }
 
     core.notice(
-      `Result: ${JSON.stringify({ extensionResult, markdownResult })}`
+      `Result: ${JSON.stringify({ mdExtensionResult, imgExtensionResult, markdownResult })}`
     );
     core.setOutput(
       "changed",
-      JSON.stringify({ extensionResult, markdownResult })
+      JSON.stringify({ mdExtensionResult, imgExtensionResult, markdownResult })
     );
   } else {
     core.setFailed("No files changed!");
