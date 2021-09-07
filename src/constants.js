@@ -25,20 +25,23 @@ const ERRORS = {
 const CATEGORIES = [
   'amm',
   'app',
+  'dapp',
   'defi',
   'dex',
   'exchange',
   'explorer',
+  'fund',
   'governance',
   'infra',
+  'investmentfund',
+  'metaplex',
+  'nft',
   'oracle',
+  'sdk',
   'spl',
   'stablecoin',
   'tools',
-  'nft',
   'wallet',
-  'fund',
-  'investmentfund'
 ];
 
 module.exports = {
