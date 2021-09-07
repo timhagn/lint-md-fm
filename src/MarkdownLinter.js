@@ -44,6 +44,10 @@ function checkMarkdown(markdown) {
 
     if (!parsed.data.logo) {
       result.errors.push(ERRORS.LOGO);
+    } else {
+      if (parsed.data.logo.contains(' ')) {
+        result.errors.push(ERRORS.LOGO_INVALID);
+      }
     }
 
     if (!parsed.data.status) {
