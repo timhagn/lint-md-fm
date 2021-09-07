@@ -6,9 +6,11 @@ function checkMarkdown(markdown) {
   const parsed = matter(markdown);
   let result = {
     status: STATUS.VALID,
+    logo: '',
     errors: []
   };
   if (parsed.data) {
+    result.logo = parsed.data.logo;
     if (parsed.data.category) {
       const categories = parsed.data.category
                           .split(',')
@@ -50,6 +52,7 @@ function checkMarkdown(markdown) {
   } else {
     result.errors.push(ERRORS.DATA_INVALID);
   }
+
   if (result.errors.length > 0) {
     result.status = STATUS.INVALID;
   }

@@ -23,7 +23,6 @@ try {
       DEFAULT_MARKDOWN_EXTENSIONS;
     const imageExtensions =
       core.getMultilineInput("image-extensions") || DEFAULT_IMAGE_EXTENSIONS;
-    const extensions = [...markdownExtensions, ...imageExtensions];
 
     core.notice(`Testing markdown extensions...`);
     const mdExtensionResult = testExtensions(
@@ -51,7 +50,7 @@ try {
     const markdownResult = testFrontmatter(
       markdownExtensions,
       changedFilesArray,
-      directories
+      directories[0]
     );
 
     if (markdownResult.status !== STATUS.VALID) {
