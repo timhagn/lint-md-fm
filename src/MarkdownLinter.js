@@ -45,7 +45,7 @@ function checkMarkdown(markdown) {
     if (!parsed.data.logo) {
       result.errors.push(ERRORS.LOGO);
     } else {
-      if (parsed.data.logo.contains(' ')) {
+      if (parsed.data.logo.includes(' ')) {
         result.errors.push(ERRORS.LOGO_INVALID);
       }
     }
