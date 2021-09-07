@@ -5662,9 +5662,11 @@ function checkMarkdown(markdown) {
   const parsed = matter(markdown);
   let result = {
     status: STATUS.VALID,
+    logo: '',
     errors: []
   };
   if (parsed.data) {
+    result.logo = parsed.data.logo;
     if (parsed.data.category) {
       const categories = parsed.data.category
                           .split(',')
@@ -5706,6 +5708,7 @@ function checkMarkdown(markdown) {
   } else {
     result.errors.push(ERRORS.DATA_INVALID);
   }
+
   if (result.errors.length > 0) {
     result.status = STATUS.INVALID;
   }
@@ -5723,7 +5726,7 @@ exports.checkMarkdown = checkMarkdown;
 
 const DEFAULT_MARKDOWN_EXTENSIONS = [".md", ".mdx"];
 const DEFAULT_IMAGE_EXTENSIONS = [".svg", ".png", ".jpg", ".jpeg"];
-const DEFAULT_FOLDERS = ["img, projects"]
+const DEFAULT_FOLDERS = ["projects", "img"];
 
 const STATUS = {
   VALID: "VALID",
@@ -5782,30 +5785,28 @@ const path = __nccwpck_require__(5622);
 const { STATUS, ERRORS } = __nccwpck_require__(4906);
 
 /**
- * Loops over all files in all directories and checks their extensions.
+ * Loops over all files in a directory and checks their extensions.
  *
  * @param extensions
  * @param changedFiles
- * @param directories
+ * @param directory
  * @returns {{errors: *[], status: string}}
  */
-const testExtensions = (extensions, changedFiles, directories) => {
+const testExtensions = (extensions, changedFiles, directory) => {
   let result = {
     status: STATUS.VALID,
     errors: [],
   };
-  directories.forEach((directory) => {
-    changedFiles.forEach((filePath) => {
-      if (filePath.includes(directory)) {
-        const extension = path.extname(filePath);
-        if (!extensions.includes(extension)) {
-          result.errors.push({
-            error: ERRORS.EXTENSION_INVALID,
-            file: filePath,
-          });
-        }
+  changedFiles.forEach((filePath) => {
+    if (filePath.includes(directory)) {
+      const extension = path.extname(filePath);
+      if (!extensions.includes(extension)) {
+        result.errors.push({
+          error: ERRORS.EXTENSION_INVALID,
+          file: filePath,
+        });
       }
-    });
+    }
   });
 
   if (result.errors.length > 0) {
@@ -5828,35 +5829,43 @@ module.exports = {
 const path = __nccwpck_require__(5622);
 const fs = __nccwpck_require__(5747);
 
-const { STATUS } = __nccwpck_require__(4906);
+const { STATUS, ERRORS } = __nccwpck_require__(4906);
 const { checkMarkdown } = __nccwpck_require__(6479);
 
 /**
- * Loops over all files in all directories and checks Markdown Frontmatter.
+ * Loops over all files in a directory and checks Markdown Frontmatter.
  *
  * @param markdownExtensions
  * @param changedFiles
- * @param directories
+ * @param directory
  * @returns {{errors: *[], status: string}}
  */
-const testFrontmatter = (markdownExtensions, changedFiles, directories) => {
+const testFrontmatter = (markdownExtensions, changedFiles, directory) => {
   let result = {
     status: STATUS.VALID,
     errors: [],
   };
-  directories.forEach((directory) => {
-    changedFiles.forEach((filePath) => {
-      if (filePath.includes(directory)) {
-        const extension = path.extname(filePath);
-        if (markdownExtensions.includes(extension)) {
-          const markdownData = fs.readFileSync(filePath, "utf8");
-          const markdownResult = checkMarkdown(markdownData);
-          if (result.status === STATUS.INVALID) {
-            result.errors.push({ errors: markdownResult.errors, file: filePath });
+  changedFiles.forEach((filePath) => {
+    // check markdown files in the specified directory
+    if (filePath.includes(directory)) {
+      const extension = path.extname(filePath);
+      if (markdownExtensions.includes(extension)) {
+        const markdownData = fs.readFileSync(filePath, "utf8");
+        const markdownResult = checkMarkdown(markdownData);
+        let errors = markdownResult.errors || [];
+        if (result.logo) {
+          // Check logo error
+          if (!fs.existsSync(result.logo.slice(1))) {    // remove "/" at the beginning of the image path
+            // logo file doesn't exist
+            errors.push(ERRORS.LOGO_FILE);
           }
         }
+        if (errors.length > 0) {
+          // Grab markdown syntax errors
+          result.errors.push({ errors, file: filePath });
+        }
       }
-    });
+    }
   });
 
   if (result.errors.length > 0) {
@@ -5953,33 +5962,44 @@ const { testFrontmatter } = __nccwpck_require__(2989);
 try {
   // Get all inputs or fall back to defaults.
   const changedFiles = core.getInput("changed-files");
-  const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
-  const markdownExtensions =
-    core.getMultilineInput("markdown-extensions") ||
-    DEFAULT_MARKDOWN_EXTENSIONS;
-  const imageExtensions =
-    core.getMultilineInput("image-extensions") || DEFAULT_IMAGE_EXTENSIONS;
-  const extensions = [...markdownExtensions, ...imageExtensions];
-
+  
   // Only continue if any files have changed.
   if (changedFiles.length) {
     const changedFilesArray = changedFiles.split(",");
-    core.notice(`Testing extensions...`);
-    const extensionResult = testExtensions(
-      extensions,
+    const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
+    const markdownExtensions =
+      core.getMultilineInput("markdown-extensions") ||
+      DEFAULT_MARKDOWN_EXTENSIONS;
+    const imageExtensions =
+      core.getMultilineInput("image-extensions") || DEFAULT_IMAGE_EXTENSIONS;
+
+    core.notice(`Testing markdown extensions...`);
+    const mdExtensionResult = testExtensions(
+      markdownExtensions,
       changedFilesArray,
-      directories
+      directories[0]
     );
-    if (extensionResult.status !== STATUS.VALID) {
-      core.error(JSON.stringify(extensionResult));
-      core.setFailed(JSON.stringify(extensionResult));
+    if (mdExtensionResult.status !== STATUS.VALID) {
+      core.error(JSON.stringify(mdExtensionResult));
+      core.setFailed(JSON.stringify(mdExtensionResult));
+    }
+
+    core.notice(`Testing image extensions...`);
+    const imgExtensionResult = testExtensions(
+      imageExtensions,
+      changedFilesArray,
+      directories[1]
+    );
+    if (imgExtensionResult.status !== STATUS.VALID) {
+      core.error(JSON.stringify(imgExtensionResult));
+      core.setFailed(JSON.stringify(imgExtensionResult));
     }
 
     core.notice("Testing Markdown Frontmatter...");
     const markdownResult = testFrontmatter(
       markdownExtensions,
       changedFilesArray,
-      directories
+      directories[0]
     );
 
     if (markdownResult.status !== STATUS.VALID) {
