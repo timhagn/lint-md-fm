@@ -5700,6 +5700,10 @@ function checkMarkdown(markdown) {
 
     if (!parsed.data.logo) {
       result.errors.push(ERRORS.LOGO);
+    } else {
+      if (parsed.data.logo.contains(' ')) {
+        result.errors.push(ERRORS.LOGO_INVALID);
+      }
     }
 
     if (!parsed.data.status) {
@@ -5744,6 +5748,7 @@ const ERRORS = {
   LOGLINE: 'LOGLINE_NOT_EXIST',
   CTA: 'CTA_NOT_EXIST',
   LOGO: 'LOGO_NOT_EXIST',
+  LOGO_INVALID: 'INVALID_LOGO_NAME',
   STATUS: 'STATUS_NOT_EXIST',
   LOGO_FILE: 'LOGO_FILE_NOT_EXIST',
 };
