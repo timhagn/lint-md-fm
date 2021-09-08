@@ -81,7 +81,7 @@ Adapt this action to one we can use to check the
 [ecosystem projects](https://github.com/solana-labs/ecosystem) for:
 
 - [x] project files in a PR not correctly named `{project-name}.md` with `.md` ext
-- [ ] missing or misnamed logo files
+- [x] missing or misnamed logo files
 - [ ] logo files in the wrong format (not SVG / PNG / JPG)
 - [ ] (only for bonus-points: image sizes)
 - [x] categories not in the `CATEGORY_MAPPING`
