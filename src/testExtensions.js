@@ -16,7 +16,8 @@ const testExtensions = (extensions, changedFiles, directory) => {
   };
   changedFiles.forEach((filePath) => {
     if (filePath.includes(directory)) {
-      const extension = path.extname(filePath);
+      let extension = path.extname(filePath) || '';
+      extension = extension.toLowerCase();
       if (!extensions.includes(extension)) {
         result.errors.push({
           error: ERRORS.EXTENSION_INVALID,
