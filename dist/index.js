@@ -18565,9 +18565,9 @@ const testLogo = (extensions, changedFiles) => {
   changedFiles.forEach((filePath) => {
     // Grab logo filename
     const logoPath = getLogoPath(filePath);
-    const logoCheckResult = checkLogoFile(extensions, filePath);
+    const logoCheckResult = checkLogoFile(extensions, logoPath);
     if (logoCheckResult.error) {
-      result.errors.push(logoCheckResult.error);
+      result.errors.push({error: logoCheckResult.error, file: logoPath});
     }
   });
 
