@@ -82,8 +82,8 @@ Adapt this action to one we can use to check the
 
 - [x] project files in a PR not correctly named `{project-name}.md` with `.md` ext
 - [x] missing or misnamed logo files
-- [ ] logo files in the wrong format (not SVG / PNG / JPG)
-- [ ] (only for bonus-points: image sizes)
+- [x] logo files in the wrong format (not SVG / PNG / JPG)
+- [x] (only for bonus-points: image sizes)
 - [x] categories not in the `CATEGORY_MAPPING`
 - [ ] adapt this README file to the functionality of the final action
 
