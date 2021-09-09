@@ -18406,7 +18406,7 @@ const { STATUS, ERRORS } = __nccwpck_require__(3196);
  * @param extensions
  * @param changedFiles
  * @param directory
- * @returns {{errors: *[], status: string}}
+ * @returns {{errors: *[], validFiles: [string], status: string}}
  */
 const testExtensions = (extensions, changedFiles, directory) => {
   let result = {
@@ -18537,7 +18537,6 @@ const checkLogoFile = (extensions, logoPath) => {
     } else {
       const data = fs.readFileSync(logoPath);
       const meta = probe.sync(data);
-      console.log('probe result: ', meta);
       const ext = extension.slice(1);
       if (meta.type === ext || meta.mime.includes(ext)) {
         if (meta.width !== 100 || meta.height !== 100) {
@@ -18919,7 +18918,7 @@ try {
     core.notice("Testing Logo Files...");
     const logoResult = testLogo(
       imageExtensions,
-      markdownResult.validFiles
+      mdExtensionResult.validFiles
     );
 
     if (logoResult.status !== STATUS.VALID) {

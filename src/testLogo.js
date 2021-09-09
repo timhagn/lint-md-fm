@@ -38,7 +38,6 @@ const checkLogoFile = (extensions, logoPath) => {
     } else {
       const data = fs.readFileSync(logoPath);
       const meta = probe.sync(data);
-      console.log('probe result: ', meta);
       const ext = extension.slice(1);
       if (meta.type === ext || meta.mime.includes(ext)) {
         if (meta.width !== 100 || meta.height !== 100) {

@@ -62,7 +62,7 @@ try {
     core.notice("Testing Logo Files...");
     const logoResult = testLogo(
       imageExtensions,
-      markdownResult.validFiles
+      mdExtensionResult.validFiles
     );
 
     if (logoResult.status !== STATUS.VALID) {

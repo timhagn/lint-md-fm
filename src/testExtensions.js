@@ -7,7 +7,7 @@ const { STATUS, ERRORS } = require("./constants");
  * @param extensions
  * @param changedFiles
  * @param directory
- * @returns {{errors: *[], status: string}}
+ * @returns {{errors: *[], validFiles: [string], status: string}}
  */
 const testExtensions = (extensions, changedFiles, directory) => {
   let result = {
