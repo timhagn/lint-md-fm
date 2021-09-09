@@ -24,17 +24,9 @@ const testFrontmatter = (markdownExtensions, changedFiles, directory) => {
       if (markdownExtensions.includes(extension)) {
         const markdownData = fs.readFileSync(filePath, "utf8");
         const markdownResult = checkMarkdown(markdownData);
-        let errors = markdownResult.errors || [];
-        if (markdownResult.logo) {
-          // Check logo error
-          if (!fs.existsSync(markdownResult.logo.slice(1))) {    // remove "/" at the beginning of the image path
-            // logo file doesn't exist
-            errors.push(ERRORS.LOGO_FILE);
-          }
-        }
-        if (errors.length > 0) {
+        if (markdownResult.errors.length > 0) {
           // Grab markdown syntax errors
-          result.errors.push({ errors, file: filePath });
+          result.errors.push({ errors: markdownResult.errors, file: filePath });
         }
       }
     }

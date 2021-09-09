@@ -12,13 +12,16 @@ const { STATUS, ERRORS } = require("./constants");
 const testExtensions = (extensions, changedFiles, directory) => {
   let result = {
     status: STATUS.VALID,
+    validFiles: [],
     errors: [],
   };
   changedFiles.forEach((filePath) => {
     if (filePath.includes(directory)) {
       let extension = path.extname(filePath) || '';
       extension = extension.toLowerCase();
-      if (!extensions.includes(extension)) {
+      if (extensions.includes(extension)) {
+        result.validFiles.push(filePath);
+      } else {
         result.errors.push({
           error: ERRORS.EXTENSION_INVALID,
           file: filePath,

@@ -1,14 +1,15 @@
 const core = require("@actions/core");
 // const github = require("@actions/github");
 // const exec = require("@actions/exec");
-const { testExtensions } = require("./src/testExtensions");
 const {
   STATUS,
   DEFAULT_FOLDERS,
   DEFAULT_MARKDOWN_EXTENSIONS,
   DEFAULT_IMAGE_EXTENSIONS,
 } = require("./src/constants");
+const { testExtensions } = require("./src/testExtensions");
 const { testFrontmatter } = require("./src/testFrontmatter");
+const { testLogo } = require("./src/testLogo");
 
 try {
   // Get all inputs or fall back to defaults.
@@ -58,12 +59,23 @@ try {
       core.setFailed(JSON.stringify(markdownResult));
     }
 
+    core.notice("Testing Logo Files...");
+    const logoResult = testLogo(
+      imageExtensions,
+      markdownResult.validFiles
+    );
+
+    if (logoResult.status !== STATUS.VALID) {
+      core.error(JSON.stringify(logoResult));
+      core.setFailed(JSON.stringify(logoResult));
+    }
+
     core.notice(
-      `Result: ${JSON.stringify({ mdExtensionResult, imgExtensionResult, markdownResult })}`
+      `Result: ${JSON.stringify({ mdExtensionResult, imgExtensionResult, markdownResult, logoResult })}`
     );
     core.setOutput(
       "changed",
-      JSON.stringify({ mdExtensionResult, imgExtensionResult, markdownResult })
+      JSON.stringify({ mdExtensionResult, imgExtensionResult, markdownResult, logoResult })
     );
   } else {
     core.setFailed("No files changed!");
