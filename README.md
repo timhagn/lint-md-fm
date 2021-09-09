@@ -85,6 +85,7 @@ Adapt this action to one we can use to check the
 - [x] logo files in the wrong format (not SVG / PNG / JPG)
 - [x] (only for bonus-points: image sizes)
 - [x] categories not in the `CATEGORY_MAPPING`
+- [ ] add strict / fuzzy matching for `slug` & `title` duplicate checking
 - [ ] adapt this README file to the functionality of the final action
 
 Find [`gray-matter`](https://www.npmjs.com/package/gray-matter) already
