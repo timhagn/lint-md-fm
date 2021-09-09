@@ -18539,7 +18539,8 @@ const checkLogoFile = (extensions, logoPath) => {
       const meta = probe.sync(data);
       const ext = extension.slice(1);
       if (meta.type === ext || meta.mime.includes(ext)) {
-        if (meta.width !== 100 || meta.height !== 100) {
+        const ratio = meta.height / meta.width;
+        if (ratio < 0.9 || ratio > 1.1) {
           result.error = ERRORS.LOGO_SIZE;
         }
       } else {
