@@ -9,6 +9,7 @@ const {
 } = require("./src/constants");
 const { testExtensions } = require("./src/testExtensions");
 const { testFrontmatter } = require("./src/testFrontmatter");
+const { testDuplication } = require("./src/testDuplication");
 const { testLogo } = require("./src/testLogo");
 
 try {
@@ -57,6 +58,17 @@ try {
     if (markdownResult.status !== STATUS.VALID) {
       core.error(JSON.stringify(markdownResult));
       core.setFailed(JSON.stringify(markdownResult));
+    }
+
+    core.notice(`Testing project duplication...`);
+    const duplicationResult = testDuplication(
+      mdExtensionResult.validFiles,
+      markdownExtensions,
+      directories[0]
+    );
+    if (duplicationResult.status !== STATUS.VALID) {
+      core.error(JSON.stringify(duplicationResult));
+      core.setFailed(JSON.stringify(duplicationResult));
     }
 
     core.notice("Testing Logo Files...");

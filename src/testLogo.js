@@ -3,7 +3,7 @@ const fs = require("fs");
 const matter = require('gray-matter');
 const probe = require('probe-image-size');
 
-const { STATUS, ERRORS, DEFAULT_IMAGE_EXTENSIONS } = require("./constants");
+const { STATUS, ERRORS } = require("./constants");
 
 const getLogoPath = (filePath) => {
   const markdownData = fs.readFileSync(filePath, "utf8");
