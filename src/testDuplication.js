@@ -18,26 +18,32 @@ const getSlugList = (extensions, directory) => {
       }
     }
   });
-  const fuse = new Fuse(list, {
-    includeScore: true,
-    threshold: 0.2,
-    keys: ['slug']
-  });
 
-  return {
-    fuse,
-    list
-  };
+  return list;
 };
 
-const checkDuplication = (slugList, slug, filePath) => {
-  const duplications = slugList.fuse.search(slug);
+const checkDuplication = (slugList, slug, filePath, isFuzzySearch) => {
   let result = [];
-  duplications.forEach((old) => {
-    if (old.item.filePath !== filePath) {
-      result.push(old.item.filePath);
-    }
-  });
+  if (isFuzzySearch) {
+    const fuse = new Fuse(slugList, {
+      includeScore: true,
+      threshold: 0.2,
+      keys: ['slug']
+    });
+    const duplications = fuse.search(slug);
+    
+    duplications.forEach((old) => {
+      if (old.item.filePath !== filePath) {
+        result.push(old.item.filePath);
+      }
+    });
+  } else {
+    slugList.forEach((item) => {
+      if (item.slug === slug && item.filePath !== filePath) {
+        result.push(item.filePath);
+      }
+    });
+  }
 
   return result;
 };
@@ -48,9 +54,10 @@ const checkDuplication = (slugList, slug, filePath) => {
  * @param changedFiles
  * @param markdownExtensions
  * @param directory
+ * @param isFuzzySearch
  * @returns {{errors: *[], status: string}}
  */
-const testDuplication = (changedFiles, markdownExtensions, directory) => {
+const testDuplication = (changedFiles, markdownExtensions, directory, isFuzzySearch) => {
   let result = {
     status: STATUS.VALID,
     errors: [],
@@ -62,7 +69,7 @@ const testDuplication = (changedFiles, markdownExtensions, directory) => {
     const parsed = matter(markdownData);
     if (parsed.data && parsed.data.slug) {
       const slug = parsed.data.slug;
-      const checkResult = checkDuplication(slugList, slug, filePath);
+      const checkResult = checkDuplication(slugList, slug, filePath, isFuzzySearch);
       if (checkResult.length > 0) {
         result.errors.push({ errors: ERRORS.PROJECT_DUPLICATION, file: filePath, duplicates: checkResult });
       }

@@ -15,7 +15,8 @@ const { testLogo } = require("./src/testLogo");
 try {
   // Get all inputs or fall back to defaults.
   const changedFiles = core.getInput("changed-files");
-  
+  const isFuzzySearch = core.getInput("fuzzy-search");
+
   // Only continue if any files have changed.
   if (changedFiles.length) {
     const changedFilesArray = changedFiles.split(",");
@@ -64,7 +65,8 @@ try {
     const duplicationResult = testDuplication(
       mdExtensionResult.validFiles,
       markdownExtensions,
-      directories[0]
+      directories[0],
+      isFuzzySearch
     );
     if (duplicationResult.status !== STATUS.VALID) {
       core.error(JSON.stringify(duplicationResult));
