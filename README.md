@@ -88,6 +88,7 @@ Adapt this action to one we can use to check the
 - [x] (only for bonus-points: image sizes)
 - [x] categories not in the `CATEGORY_MAPPING`
 - [x] add strict / fuzzy matching for `slug` & `title` duplicate checking
+- [ ] cleaned up reporting / logging
 - [ ] adapt this README file to the functionality of the final action
 
 Find [`gray-matter`](https://www.npmjs.com/package/gray-matter) already
