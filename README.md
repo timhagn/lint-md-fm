@@ -39,12 +39,13 @@ the log.
 
 ## Inputs
 
-| **Input Name**       | **Required** | **Description**                                                                                                |
-|----------------------|--------------|----------------------------------------------------------------------------------------------------------------|
-| changed-files        | true         | Which files to lint, get from [tj-actions/changed-files](https://github.com/marketplace/actions/changed-files) |
-| directories          | true         | Multiple directories to search in.                                                                             |
-| markdown-extensions  | true         | Multiple extensions of Markdown files to check for.                                                            |
-| image-extensions     | true         | Multiple extensions of image files to check for.                                                               |
+| **Input Name**      | **Required** | **Default**                     | **Description**                                                                                                |
+| ------------------- | ------------ | ------------------------------- |-------------------------------------------------------------------------------------------------------------- |
+| changed-files       | true         | -                               | Which files to lint, get from [tj-actions/changed-files](https://github.com/marketplace/actions/changed-files) |
+| directories         | false        | "projects", "img"               | Multiple directories to search in.                                                                             |
+| markdown-extensions | true         | ".md", ".mdx"                   | Multiple extensions of Markdown files to check for.                                                            |
+| image-extensions    | false        | ".svg", ".png", ".jpg", ".jpeg" | Multiple extensions of image files to check for.                                                               |
+| fuzzy-search        | false        | true                            | Should the existing projects be checked for duplicates with nearest neighbor (fuzzy) search.                   |
 
 ## Outputs
 
@@ -55,22 +56,23 @@ Which files where changed.
 ## Example usage
 
 ```yaml
-      - name: Lint Current PR
-        id: lint
-        uses: timhagn/lint-md-fm@v1.0.12
-        with:
-          changed-files: ${{ steps.changed_files.outputs.all_modified_files }}
-          directories: |
-            projects
-            img
-          markdown-extensions: |
-            md
-            mdx
-          image-extensions: |
-            png
-            svg
-            jpg
-            jpeg
+- name: Lint Current PR
+  id: lint
+  uses: timhagn/lint-md-fm@v1.0.12
+  with:
+    changed-files: ${{ steps.changed_files.outputs.all_modified_files }}
+    directories: |
+      projects
+      img
+    markdown-extensions: |
+      md
+      mdx
+    image-extensions: |
+      png
+      svg
+      jpg
+      jpeg
+    fuzzy-search: true
 ```
 
 ---
@@ -85,7 +87,7 @@ Adapt this action to one we can use to check the
 - [x] logo files in the wrong format (not SVG / PNG / JPG)
 - [x] (only for bonus-points: image sizes)
 - [x] categories not in the `CATEGORY_MAPPING`
-- [ ] add strict / fuzzy matching for `slug` & `title` duplicate checking
+- [x] add strict / fuzzy matching for `slug` & `title` duplicate checking
 - [ ] adapt this README file to the functionality of the final action
 
 Find [`gray-matter`](https://www.npmjs.com/package/gray-matter) already

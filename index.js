@@ -20,7 +20,8 @@ try {
   // Only continue if any files have changed.
   if (changedFiles.length) {
     const changedFilesArray = changedFiles.split(",");
-    const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
+    const directories =
+      core.getMultilineInput("directories") || DEFAULT_FOLDERS;
     const markdownExtensions =
       core.getMultilineInput("markdown-extensions") ||
       DEFAULT_MARKDOWN_EXTENSIONS;
@@ -74,10 +75,7 @@ try {
     }
 
     core.notice("Testing Logo Files...");
-    const logoResult = testLogo(
-      imageExtensions,
-      mdExtensionResult.validFiles
-    );
+    const logoResult = testLogo(imageExtensions, mdExtensionResult.validFiles);
 
     if (logoResult.status !== STATUS.VALID) {
       core.error(JSON.stringify(logoResult));
@@ -85,11 +83,21 @@ try {
     }
 
     core.notice(
-      `Result: ${JSON.stringify({ mdExtensionResult, imgExtensionResult, markdownResult, logoResult })}`
+      `Result: ${JSON.stringify({
+        mdExtensionResult,
+        imgExtensionResult,
+        markdownResult,
+        logoResult,
+      })}`
     );
     core.setOutput(
       "changed",
-      JSON.stringify({ mdExtensionResult, imgExtensionResult, markdownResult, logoResult })
+      JSON.stringify({
+        mdExtensionResult,
+        imgExtensionResult,
+        markdownResult,
+        logoResult,
+      })
     );
   } else {
     core.setFailed("No files changed!");

@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
-const matter = require('gray-matter');
-const Fuse = require('fuse.js');
+const matter = require("gray-matter");
+const Fuse = require("fuse.js");
 
 const { STATUS, ERRORS } = require("./constants");
 
@@ -14,7 +14,10 @@ const getSlugList = (extensions, directory) => {
       const markdownData = fs.readFileSync(`${directory}/${filePath}`, "utf8");
       const parsed = matter(markdownData);
       if (parsed.data && parsed.data.slug) {
-        list.push({slug: parsed.data.slug, filePath: `${directory}/${filePath}`});
+        list.push({
+          slug: parsed.data.slug,
+          filePath: `${directory}/${filePath}`,
+        });
       }
     }
   });
@@ -28,10 +31,10 @@ const checkDuplication = (slugList, slug, filePath, isFuzzySearch) => {
     const fuse = new Fuse(slugList, {
       includeScore: true,
       threshold: 0.2,
-      keys: ['slug']
+      keys: ["slug"],
     });
     const duplications = fuse.search(slug);
-    
+
     duplications.forEach((old) => {
       if (old.item.filePath !== filePath) {
         result.push(old.item.filePath);
@@ -57,7 +60,12 @@ const checkDuplication = (slugList, slug, filePath, isFuzzySearch) => {
  * @param isFuzzySearch
  * @returns {{errors: *[], status: string}}
  */
-const testDuplication = (changedFiles, markdownExtensions, directory, isFuzzySearch) => {
+const testDuplication = (
+  changedFiles,
+  markdownExtensions,
+  directory,
+  isFuzzySearch = true
+) => {
   let result = {
     status: STATUS.VALID,
     errors: [],
@@ -69,9 +77,18 @@ const testDuplication = (changedFiles, markdownExtensions, directory, isFuzzySea
     const parsed = matter(markdownData);
     if (parsed.data && parsed.data.slug) {
       const slug = parsed.data.slug;
-      const checkResult = checkDuplication(slugList, slug, filePath, isFuzzySearch);
+      const checkResult = checkDuplication(
+        slugList,
+        slug,
+        filePath,
+        isFuzzySearch
+      );
       if (checkResult.length > 0) {
-        result.errors.push({ errors: ERRORS.PROJECT_DUPLICATION, file: filePath, duplicates: checkResult });
+        result.errors.push({
+          errors: ERRORS.PROJECT_DUPLICATION,
+          file: filePath,
+          duplicates: checkResult,
+        });
       }
     } else {
       result.errors.push({ errors: ERRORS.SLUG, file: filePath });

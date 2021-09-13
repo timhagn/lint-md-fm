@@ -1,19 +1,19 @@
 const path = require("path");
 const fs = require("fs");
-const matter = require('gray-matter');
-const probe = require('probe-image-size');
+const matter = require("gray-matter");
+const probe = require("probe-image-size");
 
 const { STATUS, ERRORS } = require("./constants");
 
 const getLogoPath = (filePath) => {
   const markdownData = fs.readFileSync(filePath, "utf8");
   const parsed = matter(markdownData);
-  let logoPath = '';
+  let logoPath = "";
   if (parsed.data && parsed.data.logo) {
-    logoPath = parsed.data.logo.slice(1);       // remove "/" at the beginning of the image path
+    logoPath = parsed.data.logo.slice(1); // remove "/" at the beginning of the image path
   }
   return logoPath;
-}
+};
 
 /**
  * Check logo file name & format
@@ -24,7 +24,7 @@ const getLogoPath = (filePath) => {
  */
 const checkLogoFile = (extensions, logoPath) => {
   let result = {
-    error: null
+    error: null,
   };
 
   // Check logo error
@@ -50,7 +50,7 @@ const checkLogoFile = (extensions, logoPath) => {
     }
   }
   return result;
-}
+};
 
 /**
  * Loops over all files in a directory and checks Logos.
@@ -69,7 +69,7 @@ const testLogo = (extensions, changedFiles) => {
     const logoPath = getLogoPath(filePath);
     const logoCheckResult = checkLogoFile(extensions, logoPath);
     if (logoCheckResult.error) {
-      result.errors.push({error: logoCheckResult.error, file: logoPath});
+      result.errors.push({ error: logoCheckResult.error, file: logoPath });
     }
   });
 

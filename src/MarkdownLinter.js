@@ -1,12 +1,12 @@
-const matter = require('gray-matter');
+const matter = require("gray-matter");
 
 const { STATUS, ERRORS, CATEGORIES } = require("./constants");
 
 function checkMarkdown(markdown) {
   let result = {
     status: STATUS.VALID,
-    logo: '',
-    errors: []
+    logo: "",
+    errors: [],
   };
   try {
     const parsed = matter(markdown);
@@ -14,8 +14,8 @@ function checkMarkdown(markdown) {
       result.logo = parsed.data.logo;
       if (parsed.data.category) {
         const categories = parsed.data.category
-                            .split(',')
-                            .map((cat) => cat.trim().toLowerCase());
+          .split(",")
+          .map((cat) => cat.trim().toLowerCase());
         if (categories.some((cat) => CATEGORIES.indexOf(cat) < 0)) {
           result.errors.push(ERRORS.CATEGORY_INVALID);
         }
@@ -46,7 +46,7 @@ function checkMarkdown(markdown) {
       if (!parsed.data.logo) {
         result.errors.push(ERRORS.LOGO);
       } else {
-        if (parsed.data.logo.includes(' ')) {
+        if (parsed.data.logo.includes(" ")) {
           result.errors.push(ERRORS.LOGO_INVALID);
         }
       }
