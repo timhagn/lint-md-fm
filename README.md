@@ -40,7 +40,7 @@ the log.
 ## Inputs
 
 | **Input Name**      | **Required** | **Default**                     | **Description**                                                                                                |
-| ------------------- | ------------ | ------------------------------- |-------------------------------------------------------------------------------------------------------------- |
+| ------------------- | ------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | changed-files       | true         | -                               | Which files to lint, get from [tj-actions/changed-files](https://github.com/marketplace/actions/changed-files) |
 | directories         | false        | "projects", "img"               | Multiple directories to search in.                                                                             |
 | markdown-extensions | true         | ".md", ".mdx"                   | Multiple extensions of Markdown files to check for.                                                            |

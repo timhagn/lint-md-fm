@@ -20,7 +20,7 @@ try {
   // Only continue if any files have changed.
   if (changedFiles.length) {
     const changedFilesArray = changedFiles.split(",");
-    
+
     // Get the directories array from input. The first element is the projects markdown directory and the second one is the images one.
     const directories =
       core.getMultilineInput("directories") || DEFAULT_FOLDERS;
@@ -39,7 +39,7 @@ try {
     const mdExtensionResult = testExtensions(
       markdownExtensions,
       changedFilesArray,
-      directories[0]        // markdown directory
+      directories[0] // markdown directory
     );
     // Show errors if any and flag the action as failed.
     if (mdExtensionResult.status !== STATUS.VALID) {
@@ -52,7 +52,7 @@ try {
     const imgExtensionResult = testExtensions(
       imageExtensions,
       changedFilesArray,
-      directories[1]        // image directory
+      directories[1] // image directory
     );
     if (imgExtensionResult.status !== STATUS.VALID) {
       core.error(JSON.stringify(imgExtensionResult));

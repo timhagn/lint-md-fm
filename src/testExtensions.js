@@ -12,7 +12,7 @@ const { STATUS, ERRORS } = require("./constants");
 const testExtensions = (extensions, changedFiles, directory) => {
   let result = {
     status: STATUS.VALID,
-    validFiles: [],             // Used for logo validation in later stage
+    validFiles: [], // Used for logo validation in later stage
     errors: [],
   };
   changedFiles.forEach((filePath) => {

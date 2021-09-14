@@ -25,8 +25,8 @@ const testFrontmatter = (markdownExtensions, changedFiles, directory) => {
       const extension = path.extname(filePath);
       // Check files with valid markdown extensions only.
       if (markdownExtensions.includes(extension)) {
-        const markdownData = fs.readFileSync(filePath, "utf8");           // Read markdown content from the file.
-        const markdownResult = checkMarkdown(markdownData);               // Lint the markdown using the Linter.
+        const markdownData = fs.readFileSync(filePath, "utf8"); // Read markdown content from the file.
+        const markdownResult = checkMarkdown(markdownData); // Lint the markdown using the Linter.
         if (markdownResult.errors.length > 0) {
           // Grab markdown syntax errors
           result.errors.push({ errors: markdownResult.errors, file: filePath });

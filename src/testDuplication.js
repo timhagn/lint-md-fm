@@ -7,9 +7,9 @@ const { STATUS, ERRORS } = require("./constants");
 
 /**
  * Loop over the markdown directory and grabs all the existing slugs by parsing the files.
- * 
- * @param {[string]} extensions 
- * @param {string} directory 
+ *
+ * @param {[string]} extensions
+ * @param {string} directory
  * @returns {{list: [{slug, filePath}]}}
  */
 const getSlugList = (extensions, directory) => {
@@ -33,7 +33,7 @@ const getSlugList = (extensions, directory) => {
 };
 
 /**
- * 
+ *
  * @param slugList            Existing slugs list
  * @param slug                slug of the new project
  * @param filePath            Path of the new project markdown
@@ -49,7 +49,7 @@ const checkDuplication = (slugList, slug, filePath, isFuzzySearch) => {
       threshold: 0.2,
       keys: ["slug"],
     });
-    const duplications = fuse.search(slug);     // Grab all matches using fuse.js
+    const duplications = fuse.search(slug); // Grab all matches using fuse.js
 
     duplications.forEach((old) => {
       // Exclude the new project
@@ -87,7 +87,7 @@ const testDuplication = (
     status: STATUS.VALID,
     errors: [],
   };
-  const slugList = getSlugList(markdownExtensions, directory);          // Grab all slugs from the project directory
+  const slugList = getSlugList(markdownExtensions, directory); // Grab all slugs from the project directory
   // Loop over all the valid changed markdown files
   changedFiles.forEach((filePath) => {
     const markdownData = fs.readFileSync(filePath, "utf8");

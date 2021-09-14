@@ -7,7 +7,7 @@ const { STATUS, ERRORS } = require("./constants");
 
 /**
  * Parse markdown and grab the logo path.
- * 
+ *
  * @param filePath                  Markdown file path
  * @returns {{logoPath: string}}
  */
@@ -16,7 +16,7 @@ const getLogoPath = (filePath) => {
   const parsed = matter(markdownData);
   let logoPath = "";
   if (parsed.data && parsed.data.logo) {
-    logoPath = parsed.data.logo.slice(1);       // remove "/" at the beginning of the image path.
+    logoPath = parsed.data.logo.slice(1); // remove "/" at the beginning of the image path.
   }
   return logoPath;
 };
@@ -44,8 +44,8 @@ const checkLogoFile = (extensions, logoPath) => {
       result.error = ERRORS.LOGO_FORMAT;
     } else {
       const data = fs.readFileSync(logoPath);
-      const meta = probe.sync(data);                // Grab meta information of the logo. See https://www.npmjs.com/package/probe-image-size
-      const ext = extension.slice(1);               // Remove "." from the extension string.
+      const meta = probe.sync(data); // Grab meta information of the logo. See https://www.npmjs.com/package/probe-image-size
+      const ext = extension.slice(1); // Remove "." from the extension string.
       // Check if the extension matches the file format. Works for all svg/png/jpg/jpeg extensions.
       if (meta.type === ext || meta.mime.includes(ext)) {
         const ratio = meta.height / meta.width;
@@ -75,8 +75,8 @@ const testLogo = (extensions, changedFiles) => {
   };
   changedFiles.forEach((filePath) => {
     // Grab logo filename.
-    const logoPath = getLogoPath(filePath);                                   // Grab logo file path.
-    const logoCheckResult = checkLogoFile(extensions, logoPath);              // Grab the logo validation result.
+    const logoPath = getLogoPath(filePath); // Grab logo file path.
+    const logoCheckResult = checkLogoFile(extensions, logoPath); // Grab the logo validation result.
     if (logoCheckResult.error) {
       result.errors.push({ error: logoCheckResult.error, file: logoPath });
     }
