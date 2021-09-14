@@ -7,6 +7,7 @@ const STATUS = {
   INVALID: "INVALID",
 };
 
+// Error codes and strings for each possible error.
 const ERRORS = {
   EXTENSION_INVALID: "EXTENSION_IS_INVALID",
   DATA_INVALID: "DATA_INVALID",
@@ -26,6 +27,7 @@ const ERRORS = {
   PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST",
 };
 
+// Valid project categories. Used for the "category" tag in the markdown file.
 const CATEGORIES = [
   "amm",
   "app",
