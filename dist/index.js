@@ -20538,47 +20538,54 @@ function checkMarkdown(markdown) {
         const categories = parsed.data.category
           .split(",")
           .map((cat) => cat.trim().toLowerCase());
-        if (categories.some((cat) => CATEGORIES.indexOf(cat) < 0)) {
-          result.errors.push(ERRORS.CATEGORY_INVALID);
+        let invalidCategories = [];
+        categories.forEach((cat) => {
+          if (CATEGORIES.indexOf(cat) < 0) {
+            invalidCategories.push(cat);                // Grab all invalid categories
+          }
+        });
+        if (invalidCategories.length > 0) {
+          // include invalid categories in the error.
+          result.errors.push({code: ERRORS.CATEGORY_INVALID, values: invalidCategories});
         }
       } else {
-        result.errors.push(ERRORS.CATEGORY);
+        result.errors.push({code: ERRORS.CATEGORY});
       }
 
       if (!parsed.data.slug) {
-        result.errors.push(ERRORS.SLUG);
+        result.errors.push({code: ERRORS.SLUG});
       }
 
       if (!parsed.data.date) {
-        result.errors.push(ERRORS.DATE);
+        result.errors.push({code: ERRORS.DATE});
       }
 
       if (!parsed.data.title) {
-        result.errors.push(ERRORS.TITLE);
+        result.errors.push({code: ERRORS.TITLE});
       }
 
       if (!parsed.data.logline) {
-        result.errors.push(ERRORS.LOGLINE);
+        result.errors.push({code: ERRORS.LOGLINE});
       }
 
       if (!parsed.data.cta) {
-        result.errors.push(ERRORS.CTA);
+        result.errors.push({code: ERRORS.CTA});
       }
 
       if (!parsed.data.logo) {
-        result.errors.push(ERRORS.LOGO);
+        result.errors.push({code: ERRORS.LOGO});
       } else {
         // Logo path should not include white space.
         if (parsed.data.logo.includes(" ")) {
-          result.errors.push(ERRORS.LOGO_INVALID);
+          result.errors.push({code: ERRORS.LOGO_INVALID});
         }
       }
 
       if (!parsed.data.status) {
-        result.errors.push(ERRORS.STATUS);
+        result.errors.push({code: ERRORS.STATUS});
       }
     } else {
-      result.errors.push(ERRORS.DATA_INVALID);
+      result.errors.push({code: ERRORS.DATA_INVALID});
     }
 
     // Set result status to Invalid if there's any error
@@ -20588,7 +20595,7 @@ function checkMarkdown(markdown) {
   } catch (e) {
     // Catch exceptions when parsing the markdown
     result.status = STATUS.INVALID;
-    result.errors.push(ERRORS.DATA_INVALID);
+    result.errors.push({code: ERRORS.DATA_INVALID});
   }
 
   return result;
@@ -20613,22 +20620,22 @@ const STATUS = {
 
 // Error codes and strings for each possible error.
 const ERRORS = {
-  EXTENSION_INVALID: "EXTENSION_IS_INVALID",
-  DATA_INVALID: "DATA_INVALID",
-  CATEGORY_INVALID: "CATEGORY_INVALID",
-  CATEGORY: "CATEGORY_NOT_EXIST",
-  SLUG: "SLUG_NOT_EXIST",
-  DATE: "DATE_NOT_EXIST",
-  TITLE: "TITLE_NOT_EXIST",
-  LOGLINE: "LOGLINE_NOT_EXIST",
-  CTA: "CTA_NOT_EXIST",
-  LOGO: "LOGO_NOT_EXIST",
-  LOGO_INVALID: "INVALID_LOGO_NAME",
-  STATUS: "STATUS_NOT_EXIST",
-  LOGO_FILE: "LOGO_FILE_NOT_EXIST",
-  LOGO_FORMAT: "INVALID_LOGO_FORMAT",
-  LOGO_SIZE: "INVALID_LOGO_SIZE",
-  PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST",
+  EXTENSION_INVALID: "EXTENSION_IS_INVALID",        // Markdown or logo extension is not valid.
+  DATA_INVALID: "DATA_INVALID",                     // Markdown is not in valid format.
+  CATEGORY_INVALID: "CATEGORY_INVALID",             // Project category is invalid.
+  CATEGORY: "CATEGORY_NOT_EXIST",                   // "category" tag does not exist in the markdown.
+  SLUG: "SLUG_NOT_EXIST",                           // "slug" tag does not exist in the markdown.
+  DATE: "DATE_NOT_EXIST",                           // "date" tag does not exist in the markdown.
+  TITLE: "TITLE_NOT_EXIST",                         // "title" tag does not exist in the markdown.
+  LOGLINE: "LOGLINE_NOT_EXIST",                     // "logline" tag does not exist in the markdown.
+  CTA: "CTA_NOT_EXIST",                             // "cta" tag does not exist in the markdown.
+  LOGO: "LOGO_NOT_EXIST",                           // "logo" tag does not exist in the markdown.
+  LOGO_INVALID: "INVALID_LOGO_NAME",                // logo value is invalid. e.g. contains white space.
+  STATUS: "STATUS_NOT_EXIST",                       // "state" tag does not exist in the markdown.
+  LOGO_FILE: "LOGO_FILE_NOT_EXIST",                 // logo file does not exist in the img directory.
+  LOGO_FORMAT: "INVALID_LOGO_FORMAT",               // logo file format does not match the extension.
+  LOGO_SIZE: "INVALID_LOGO_SIZE",                   // logo image size is not in correct ratio.
+  PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST",     // Projects with the same slug exist already.
 };
 
 // Valid project categories. Used for the "category" tag in the markdown file.
