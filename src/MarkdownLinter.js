@@ -25,47 +25,54 @@ function checkMarkdown(markdown) {
         const categories = parsed.data.category
           .split(",")
           .map((cat) => cat.trim().toLowerCase());
-        if (categories.some((cat) => CATEGORIES.indexOf(cat) < 0)) {
-          result.errors.push(ERRORS.CATEGORY_INVALID);
+        let invalidCategories = [];
+        categories.forEach((cat) => {
+          if (CATEGORIES.indexOf(cat) < 0) {
+            invalidCategories.push(cat);                // Grab all invalid categories
+          }
+        });
+        if (invalidCategories.length > 0) {
+          // include invalid categories in the error.
+          result.errors.push({code: ERRORS.CATEGORY_INVALID, values: invalidCategories});
         }
       } else {
-        result.errors.push(ERRORS.CATEGORY);
+        result.errors.push({code: ERRORS.CATEGORY});
       }
 
       if (!parsed.data.slug) {
-        result.errors.push(ERRORS.SLUG);
+        result.errors.push({code: ERRORS.SLUG});
       }
 
       if (!parsed.data.date) {
-        result.errors.push(ERRORS.DATE);
+        result.errors.push({code: ERRORS.DATE});
       }
 
       if (!parsed.data.title) {
-        result.errors.push(ERRORS.TITLE);
+        result.errors.push({code: ERRORS.TITLE});
       }
 
       if (!parsed.data.logline) {
-        result.errors.push(ERRORS.LOGLINE);
+        result.errors.push({code: ERRORS.LOGLINE});
       }
 
       if (!parsed.data.cta) {
-        result.errors.push(ERRORS.CTA);
+        result.errors.push({code: ERRORS.CTA});
       }
 
       if (!parsed.data.logo) {
-        result.errors.push(ERRORS.LOGO);
+        result.errors.push({code: ERRORS.LOGO});
       } else {
         // Logo path should not include white space.
         if (parsed.data.logo.includes(" ")) {
-          result.errors.push(ERRORS.LOGO_INVALID);
+          result.errors.push({code: ERRORS.LOGO_INVALID});
         }
       }
 
       if (!parsed.data.status) {
-        result.errors.push(ERRORS.STATUS);
+        result.errors.push({code: ERRORS.STATUS});
       }
     } else {
-      result.errors.push(ERRORS.DATA_INVALID);
+      result.errors.push({code: ERRORS.DATA_INVALID});
     }
 
     // Set result status to Invalid if there's any error
@@ -75,7 +82,7 @@ function checkMarkdown(markdown) {
   } catch (e) {
     // Catch exceptions when parsing the markdown
     result.status = STATUS.INVALID;
-    result.errors.push(ERRORS.DATA_INVALID);
+    result.errors.push({code: ERRORS.DATA_INVALID});
   }
 
   return result;
