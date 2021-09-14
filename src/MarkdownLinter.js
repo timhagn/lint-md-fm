@@ -2,16 +2,22 @@ const matter = require("gray-matter");
 
 const { STATUS, ERRORS, CATEGORIES } = require("./constants");
 
+/**
+ * Validate a single markdown file content.
+ *
+ * @param markdown
+ * @returns {{errors: *[], status: string}}
+ */
 function checkMarkdown(markdown) {
   let result = {
     status: STATUS.VALID,
-    logo: "",
     errors: [],
   };
   try {
+    // Parse the markdown using "gray-matter" package.
     const parsed = matter(markdown);
+    // Continue only if the markdown is valid.
     if (parsed.data) {
-      result.logo = parsed.data.logo;
       if (parsed.data.category) {
         const categories = parsed.data.category
           .split(",")
