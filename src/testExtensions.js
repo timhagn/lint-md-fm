@@ -12,13 +12,15 @@ const { STATUS, ERRORS } = require("./constants");
 const testExtensions = (extensions, changedFiles, directory) => {
   let result = {
     status: STATUS.VALID,
-    validFiles: [],
+    validFiles: [],             // Used for logo validation in later stage
     errors: [],
   };
   changedFiles.forEach((filePath) => {
+    // Check files in the specific directory only.
     if (filePath.includes(directory)) {
       let extension = path.extname(filePath) || "";
       extension = extension.toLowerCase();
+      // Check if a file in the specific directory has a valid extension
       if (extensions.includes(extension)) {
         result.validFiles.push(filePath);
       } else {
@@ -30,6 +32,7 @@ const testExtensions = (extensions, changedFiles, directory) => {
     }
   });
 
+  // Set result status to Invalid if there's any error
   if (result.errors.length > 0) {
     result.status = STATUS.INVALID;
   }
