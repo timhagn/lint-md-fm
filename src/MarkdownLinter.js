@@ -18,7 +18,10 @@ function checkMarkdown(markdown) {
     const parsed = matter(markdown);
     // Continue only if the markdown is valid.
     if (parsed.data) {
+      // Check all the required tags
+
       if (parsed.data.category) {
+        // Check if all the categories are valid
         const categories = parsed.data.category
           .split(",")
           .map((cat) => cat.trim().toLowerCase());
@@ -52,6 +55,7 @@ function checkMarkdown(markdown) {
       if (!parsed.data.logo) {
         result.errors.push(ERRORS.LOGO);
       } else {
+        // Logo path should not include white space.
         if (parsed.data.logo.includes(" ")) {
           result.errors.push(ERRORS.LOGO_INVALID);
         }
@@ -64,10 +68,12 @@ function checkMarkdown(markdown) {
       result.errors.push(ERRORS.DATA_INVALID);
     }
 
+    // Set result status to Invalid if there's any error
     if (result.errors.length > 0) {
       result.status = STATUS.INVALID;
     }
   } catch (e) {
+    // Catch exceptions when parsing the markdown
     result.status = STATUS.INVALID;
     result.errors.push(ERRORS.DATA_INVALID);
   }
