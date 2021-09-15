@@ -26335,6 +26335,15 @@ module.exports = {
 const core = __nccwpck_require__(7928);
 const github = __nccwpck_require__(3527);
 
+const isMessagePresent = (message, comments) => {
+  const cleanRe = new RegExp("\\R|\\s", "g");
+  const messageClean = message.replace(cleanRe, "");
+
+  return comments.some(
+    ({ body }) => body.replace(cleanRe, "") === messageClean
+  );
+};
+
 const initReporter = () => {
   const token = core.getInput("github-token", { required: true });
   const debug = core.getInput("debug");
@@ -26353,15 +26362,26 @@ const reporterComment = async (results, reporter = null) => {
     octokit = reporter;
   }
   const context = github.context;
+  const issueNumber = context.issue.number;
+  const { owner, repo } = context.repo.owner;
 
-  core.notice(`Commenting results... ${JSON.stringify(context)}`);
-  const result = await octokit.rest.issues.createComment({
-    issue_number: context.issue.number,
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    body: "👋 Thanks for reporting!",
+  const message = "👋 Thanks for reporting!";
+
+  const { data: comments } = await octokit.issues.listComments({
+    owner,
+    repo,
+    issue_number: issueNumber,
   });
-  core.notice(result);
+  if (!isMessagePresent(message, comments)) {
+    core.notice(`Commenting results... ${JSON.stringify(context)}`);
+    const result = await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: issueNumber,
+      body: message,
+    });
+    core.notice(result);
+  }
 };
 
 module.exports = { initReporter, reporterComment };
