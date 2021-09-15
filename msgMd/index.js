@@ -9,7 +9,7 @@ const extensionIsInvalid = ({
   INVALID_FILES,
 }) =>
   `
-## Extensions Invalid!
+## ⚠️ Extensions Invalid!
 
 **The extension of one or more of your committed files is invalid!**  
 
@@ -26,15 +26,25 @@ The following files have invalid extensions:
  * @returns {string}
  */
 const noFilesChanged = () => `
-## No files changed
+## ⚠️ No files changed
 
 Looks like you didn't change any files of relevance.  
 **Make sure that you add files to your commit before pushing it!**
 `;
 
+const projectAlreadyExists = ({ INVALID_FILES }) => `
+## ⚠️ Duplicate Project!
+
+**The project you are trying to add does already exist!**
+
+The following files created duplication errors:  
+**${INVALID_FILES}**
+`;
+
 const MARKDOWN_CONTENTS = {
   NO_FILES_CHANGED: noFilesChanged,
   EXTENSION_IS_INVALID: extensionIsInvalid,
+  PROJECT_ALREADY_EXIST: projectAlreadyExists,
 };
 
 module.exports = { MARKDOWN_CONTENTS };

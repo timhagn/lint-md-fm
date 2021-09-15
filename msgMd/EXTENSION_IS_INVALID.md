@@ -1,4 +1,4 @@
-## Extensions Invalid!
+## ⚠️ Extensions Invalid!
 
 **The extension of one or more of your committed files is invalid!**
 

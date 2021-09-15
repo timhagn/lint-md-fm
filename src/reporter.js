@@ -125,8 +125,6 @@ const reporterComment = async (
       commitPullsList && getIssueNumberFromCommitPullsList(commitPullsList);
   }
 
-  // TODO: create Message from results.
-  // const message = "👋 Thanks for reporting!";
   // Create message from errors or return success message.
   const message = createMessageFromResults(results, extensionReplacements);
 

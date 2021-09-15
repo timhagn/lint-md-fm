@@ -1,4 +1,5 @@
 const { MARKDOWN_CONTENTS } = require("../msgMd");
+const { ERRORS } = require("./constants");
 
 // Error codes and strings for each possible error.
 // const ERRORS = {
@@ -30,11 +31,26 @@ const getCurrentError = (results) => {
     return results.errors[0].error;
   }
   return "";
-}
+};
 
 const getInvalidExtensionFiles = (results) => {
   if (results.errors) {
-    return results.errors.map(({file}) => file).join(', ')
+    return results.errors.map(({ file }) => file).join("   ");
+  }
+  return "";
+};
+
+const getInvalidDuplicateFiles = (results) => {
+  if (results.errors) {
+    return results.errors
+      .reduce((accumulatedErrors, { error, file, duplicates }) => {
+        if (error === ERRORS.PROJECT_DUPLICATION) {
+          const duplicationErrorMessage = `${file} had the following duplicates ${duplicates}`;
+          accumulatedErrors.push(duplicationErrorMessage);
+        }
+        return accumulatedErrors;
+      }, [])
+      .join("   ");
   }
   return "";
 };
@@ -42,15 +58,20 @@ const getInvalidExtensionFiles = (results) => {
 const createMessageFromResults = (results, replacements = {}) => {
   const currentError = getCurrentError(results);
   switch (currentError) {
-    case 'NO_FILES_CHANGED':
+    case ERRORS.NO_FILES_CHANGED:
       return MARKDOWN_CONTENTS[currentError]();
-    case 'EXTENSION_IS_INVALID':
+    case ERRORS.EXTENSION_INVALID:
       const fileReplacements = getInvalidExtensionFiles(results);
-      const allReplacements = {
+      const allExtensionReplacements = {
         ...replacements,
         INVALID_FILES: fileReplacements,
       };
-      return MARKDOWN_CONTENTS[currentError](allReplacements);
+      return MARKDOWN_CONTENTS[currentError](allExtensionReplacements);
+    case ERRORS.PROJECT_DUPLICATION:
+      const allDuplicateReplacements = {
+        INVALID_FILES: getInvalidDuplicateFiles(results),
+      };
+      return MARKDOWN_CONTENTS[currentError](allDuplicateReplacements);
     default:
       return "";
   }

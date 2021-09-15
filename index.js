@@ -69,7 +69,7 @@ const main = async () => {
     );
     // Show errors if any and flag the action as failed.
     if (mdExtensionResult.status !== STATUS.VALID) {
-      // Create an error comment.
+      // Create an error comment for invalid project file extensions.
       await reporterComment(
         repoToken,
         debug,
@@ -89,7 +89,7 @@ const main = async () => {
       directories[1] // image directory
     );
     if (imgExtensionResult.status !== STATUS.VALID) {
-      // Create an error comment.
+      // Create an error comment for invalid image extensions.
       await reporterComment(
         repoToken,
         debug,

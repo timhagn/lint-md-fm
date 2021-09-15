@@ -103,13 +103,13 @@ const testDuplication = (
       );
       if (checkResult.length > 0) {
         result.errors.push({
-          errors: ERRORS.PROJECT_DUPLICATION,
+          error: ERRORS.PROJECT_DUPLICATION,
           file: filePath,
           duplicates: checkResult,
         });
       }
     } else {
-      result.errors.push({ errors: ERRORS.SLUG, file: filePath });
+      result.errors.push({ error: ERRORS.SLUG, file: filePath });
     }
   });
 

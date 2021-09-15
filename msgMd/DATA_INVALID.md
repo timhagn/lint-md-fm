@@ -1,4 +1,4 @@
-## Markdown data Invalid!
+## ⚠️ Markdown data Invalid!
 
 **The content of one or more of your committed Markdown files is invalid!**
 
