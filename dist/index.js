@@ -35,7 +35,8 @@ const noFilesChanged = () => `
 ## ⚠️ No files changed
 
 Looks like you didn't change any files of relevance.  
-**Make sure that you add files to your commit before pushing it!**
+Make sure that you add project and / or image files to your commit before 
+pushing it!
 `;
 
 const projectAlreadyExists = ({ INVALID_FILES }) => `
@@ -27290,6 +27291,11 @@ const handleError = (error) => {
   core.setFailed(`Unhandled error: ${error}`);
 };
 
+const hasRelevantFilesInDirectories = (changedFiles, directories) =>
+  changedFiles.length &&
+  changedFiles
+    .split(",")
+    .some((file) => directories.some((directory) => file.includes(directory)));
 /**
  * Main action function.
  *
@@ -27301,17 +27307,18 @@ const main = async () => {
   const debug = core.getInput("debug");
   const changedFiles = core.getInput("changed-files");
   const isFuzzySearch = core.getInput("fuzzy-search");
+  // Get the directories array from input. The first element is the projects markdown directory and the second one is the images one.
+  const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
 
   // Create a octokit reporter.
   const reporter = initReporter(repoToken, debug);
 
-  // Only continue if any files have changed.
-  if (changedFiles.length) {
+  // Only continue if any relevant files have changed.
+  if (
+    changedFiles.length &&
+    hasRelevantFilesInDirectories(changedFiles, directories)
+  ) {
     const changedFilesArray = changedFiles.split(",");
-
-    // Get the directories array from input. The first element is the projects markdown directory and the second one is the images one.
-    const directories =
-      core.getMultilineInput("directories") || DEFAULT_FOLDERS;
 
     // Get all the valid markdown extensions or fall back to defaults.
     const markdownExtensions =
@@ -27424,7 +27431,7 @@ const main = async () => {
     await reporterComment(
       repoToken,
       debug,
-      { errors: [{ error: ERRORS.NO_FILES_CHANGED }]},
+      { errors: [{ error: ERRORS.NO_FILES_CHANGED }] },
       {},
       reporter
     );
