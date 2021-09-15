@@ -26,6 +26,12 @@ const { ERRORS } = require("./constants");
 //   PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST", // Projects with the same slug exist already.
 // };
 
+/**
+ * Get the first error message from results to switch.
+ *
+ * @param results
+ * @returns {string|*}
+ */
 const getCurrentError = (results) => {
   if (results.errors && results.errors.length) {
     return results.errors[0].error;
@@ -33,6 +39,12 @@ const getCurrentError = (results) => {
   return "";
 };
 
+/**
+ * Returns all files with invalid extensions combined.
+ *
+ * @param results
+ * @returns {string|*}
+ */
 const getInvalidExtensionFiles = (results) => {
   if (results.errors) {
     return results.errors.map(({ file }) => file).join("   ");
@@ -40,12 +52,18 @@ const getInvalidExtensionFiles = (results) => {
   return "";
 };
 
+/**
+ * Returns a list of duplicate files.
+ *
+ * @param results
+ * @returns {string|*}
+ */
 const getInvalidDuplicateFiles = (results) => {
   if (results.errors) {
     return results.errors
       .reduce((accumulatedErrors, { error, file, duplicates }) => {
         if (error === ERRORS.PROJECT_DUPLICATION) {
-          const duplicationErrorMessage = `${file} had the following duplicates ${duplicates}`;
+          const duplicationErrorMessage = `**${file}** had the following duplicates **${duplicates.join(', ')}**`;
           accumulatedErrors.push(duplicationErrorMessage);
         }
         return accumulatedErrors;
@@ -55,6 +73,13 @@ const getInvalidDuplicateFiles = (results) => {
   return "";
 };
 
+/**
+ * Parses the resulting errors and generates comments accordingly.
+ *
+ * @param results
+ * @param replacements
+ * @returns {string|*}
+ */
 const createMessageFromResults = (results, replacements = {}) => {
   const currentError = getCurrentError(results);
   switch (currentError) {
