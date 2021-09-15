@@ -1,6 +1,5 @@
 const core = require("@actions/core");
-// const github = require("@actions/github");
-// const exec = require("@actions/exec");
+
 const {
   STATUS,
   DEFAULT_FOLDERS,
@@ -11,19 +10,32 @@ const { testExtensions } = require("./src/testExtensions");
 const { testFrontmatter } = require("./src/testFrontmatter");
 const { testDuplication } = require("./src/testDuplication");
 const { testLogo } = require("./src/testLogo");
-const { reporterComment } = require("./src/reporter");
+const { initReporter, reporterComment } = require("./src/reporter");
 
+/**
+ * Gets called for unchecked errors.
+ *
+ * @param error
+ */
 const handleError = (error) => {
   console.error(error);
   core.setFailed(`Unhandled error: ${error}`);
 };
 
+/**
+ * Main action function.
+ *
+ * @returns {Promise<void>}
+ */
 const main = async () => {
-  await reporterComment();
-
   // Get all inputs or fall back to defaults.
+  const repoToken = core.getInput("github-token", { required: true });
+  const debug = core.getInput("debug");
   const changedFiles = core.getInput("changed-files");
   const isFuzzySearch = core.getInput("fuzzy-search");
+
+  // Create a octokit reporter.
+  const reporter = initReporter(repoToken, debug);
 
   // Only continue if any files have changed.
   if (changedFiles.length) {
@@ -42,6 +54,11 @@ const main = async () => {
     const imageExtensions =
       core.getMultilineInput("image-extensions") || DEFAULT_IMAGE_EXTENSIONS;
 
+    const extensionReplacements = {
+      MARKDOWN_EXTENSIONS: markdownExtensions,
+      IMAGE_EXTENSIONS: imageExtensions,
+    };
+
     // Check if all markdown files have valid extensions.
     core.notice(`Testing markdown extensions...`);
     const mdExtensionResult = testExtensions(
@@ -51,6 +68,14 @@ const main = async () => {
     );
     // Show errors if any and flag the action as failed.
     if (mdExtensionResult.status !== STATUS.VALID) {
+      // Create an error comment.
+      await reporterComment(
+        repoToken,
+        debug,
+        mdExtensionResult,
+        extensionReplacements,
+        reporter
+      );
       core.error(JSON.stringify(mdExtensionResult));
       core.setFailed(JSON.stringify(mdExtensionResult));
     }
@@ -63,6 +88,14 @@ const main = async () => {
       directories[1] // image directory
     );
     if (imgExtensionResult.status !== STATUS.VALID) {
+      // Create an error comment.
+      await reporterComment(
+        repoToken,
+        debug,
+        imgExtensionResult,
+        extensionReplacements,
+        reporter
+      );
       core.error(JSON.stringify(imgExtensionResult));
       core.setFailed(JSON.stringify(imgExtensionResult));
     }

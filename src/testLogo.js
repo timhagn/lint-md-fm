@@ -8,8 +8,8 @@ const { STATUS, ERRORS } = require("./constants");
 /**
  * Parse markdown and grab the logo path.
  *
- * @param filePath                  Markdown file path
- * @returns {{logoPath: string}}
+ * @param filePath
+ * @returns {string}
  */
 const getLogoPath = (filePath) => {
   const markdownData = fs.readFileSync(filePath, "utf8");
@@ -26,7 +26,7 @@ const getLogoPath = (filePath) => {
  *
  * @param extensions
  * @param logoPath
- * @returns {{error: string}}
+ * @returns {{error: null}}
  */
 const checkLogoFile = (extensions, logoPath) => {
   let result = {

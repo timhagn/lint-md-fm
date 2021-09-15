@@ -1,6 +1,35 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 5208:
+/***/ ((module) => {
+
+const extensionIsInvalid = ({
+  MARKDOWN_EXTENSIONS,
+  IMAGE_EXTENSIONS,
+  INVALID_FILES,
+}) =>
+  `
+## Extensions Invalid!
+
+**The extension of one or more of your committed files is invalid!**  
+
+For your project files they should have one of these: ${MARKDOWN_EXTENSIONS}.  
+For your logo images they should have one of these: ${IMAGE_EXTENSIONS}.  
+
+The following files had invalid extensions:  
+${INVALID_FILES}
+  `;
+
+const MARKDOWN_CONTENTS = {
+  EXTENSION_IS_INVALID: extensionIsInvalid,
+};
+
+module.exports = { MARKDOWN_CONTENTS };
+
+
+/***/ }),
+
 /***/ 714:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -26262,6 +26291,67 @@ exports.checkMarkdown = checkMarkdown;
 
 /***/ }),
 
+/***/ 7028:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { MARKDOWN_CONTENTS } = __nccwpck_require__(5208);
+
+// Error codes and strings for each possible error.
+// const ERRORS = {
+//   EXTENSION_INVALID: "EXTENSION_IS_INVALID", // Markdown or logo extension is not valid.
+//   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
+
+//   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
+//   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
+
+//   SLUG: "SLUG_NOT_EXIST", // "slug" tag does not exist in the markdown.
+//   DATE: "DATE_NOT_EXIST", // "date" tag does not exist in the markdown.
+//   TITLE: "TITLE_NOT_EXIST", // "title" tag does not exist in the markdown.
+//   LOGLINE: "LOGLINE_NOT_EXIST", // "logline" tag does not exist in the markdown.
+//   CTA: "CTA_NOT_EXIST", // "cta" tag does not exist in the markdown.
+//   LOGO: "LOGO_NOT_EXIST", // "logo" tag does not exist in the markdown.
+//   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
+//   STATUS: "STATUS_NOT_EXIST", // "state" tag does not exist in the markdown.
+
+//   LOGO_FILE: "LOGO_FILE_NOT_EXIST", // logo file does not exist in the img directory.
+//   LOGO_FORMAT: "INVALID_LOGO_FORMAT", // logo file format does not match the extension.
+//   LOGO_SIZE: "INVALID_LOGO_SIZE", // logo image size is not in correct ratio.
+
+//   PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST", // Projects with the same slug exist already.
+// };
+
+const getCurrentError = (results) => {
+  if (results.errors && results.errors.length) {
+    return results.errors[0].error;
+  }
+  return "";
+}
+
+const getInvalidFiles = (results) => {
+  if (results.errors) {
+    return results.errors.map(({file}) => file).join(', ')
+  }
+  return "";
+};
+
+const createMessageFromResults = (results, replacements = {}) => {
+  const currentError = getCurrentError(results);
+  if (currentError) {
+    const fileReplacements = getInvalidFiles(results);
+    const allReplacements = {
+      ...replacements,
+      INVALID_FILES: fileReplacements,
+    };
+    return MARKDOWN_CONTENTS[currentError](allReplacements);
+  }
+  return "";
+};
+
+module.exports = { createMessageFromResults };
+
+
+/***/ }),
+
 /***/ 4906:
 /***/ ((module) => {
 
@@ -26335,7 +26425,14 @@ module.exports = {
 const core = __nccwpck_require__(7928);
 const github = __nccwpck_require__(3527);
 const { HttpClient } = __nccwpck_require__(5861);
+const { createMessageFromResults } = __nccwpck_require__(7028);
 
+/**
+ * Get all Pull Requests of current repo.
+ *
+ * @param params
+ * @returns {Promise<unknown>}
+ */
 const listCommitPulls = async (params) => {
   const { repoToken, owner, repo, commitSha } = params;
 
@@ -26354,9 +26451,22 @@ const listCommitPulls = async (params) => {
   return body.result;
 };
 
+/**
+ * Extract issue number from Pull Request List as a fallback.
+ *
+ * @param commitPullsList
+ * @returns {*|null}
+ */
 const getIssueNumberFromCommitPullsList = (commitPullsList) =>
   commitPullsList.length ? commitPullsList[0].number : null;
 
+/**
+ * Check for already existing comment in PR to prevent duplicate posting.
+ *
+ * @param message
+ * @param comments
+ * @returns {*}
+ */
 const isMessagePresent = (message, comments) => {
   const cleanRe = new RegExp("\\R|\\s", "g");
   const messageClean = message.replace(cleanRe, "");
@@ -26366,6 +26476,13 @@ const isMessagePresent = (message, comments) => {
   );
 };
 
+/**
+ * Initialize octokit.
+ *
+ * @param token
+ * @param debug
+ * @returns {InstanceType<typeof GitHub>}
+ */
 const initReporter = (token, debug) => {
   const opts = {};
   if (debug === "true") opts.log = console;
@@ -26373,10 +26490,24 @@ const initReporter = (token, debug) => {
   return github.getOctokit(token, opts);
 };
 
-const reporterComment = async (results, reporter = null) => {
-  const repoToken = core.getInput("github-token", { required: true });
-  const debug = core.getInput("debug");
-
+/**
+ * Posts a comment for the results.
+ *
+ * @param repoToken
+ * @param debug
+ * @param results
+ * @param extensionReplacements
+ * @param reporter
+ * @returns {Promise<void>}
+ */
+const reporterComment = async (
+  repoToken,
+  debug,
+  results,
+  extensionReplacements,
+  reporter = null
+) => {
+  // Do we have an existing reporter?
   let octokit;
   if (!reporter) {
     octokit = initReporter(repoToken, debug);
@@ -26384,6 +26515,7 @@ const reporterComment = async (results, reporter = null) => {
     octokit = reporter;
   }
 
+  // Get current issue / PR info.
   const {
     payload: { pull_request: pullRequest, issue, repository },
     sha: commitSha,
@@ -26395,11 +26527,12 @@ const reporterComment = async (results, reporter = null) => {
     return;
   }
 
+  // Extract data about issue / PR.
   const { full_name: repoFullName } = repository;
   const [owner, repo] = repoFullName.split("/");
 
+  // Get issue number from issue, PR or try to extract it form all Pull requests.
   let issueNumber;
-
   if (issue && issue.number) {
     issueNumber = issue.number;
   } else if (pullRequest && pullRequest.number) {
@@ -26416,23 +26549,27 @@ const reporterComment = async (results, reporter = null) => {
       commitPullsList && getIssueNumberFromCommitPullsList(commitPullsList);
   }
 
-  const message = "👋 Thanks for reporting!";
-  //
-  // const { data: comments } = await octokit.rest.issues.listComments({
-  //   owner,
-  //   repo,
-  //   issue_number: issueNumber,
-  // });
-  // if (!isMessagePresent(message, comments)) {
-  core.notice(`Commenting results...`);
-  const result = await octokit.rest.issues.createComment({
+  // TODO: create Message from results.
+  // const message = "👋 Thanks for reporting!";
+  // Create message from errors or return success message.
+  const message = createMessageFromResults(results, extensionReplacements);
+
+  // Check to see if comment is existing & post it if not.
+  const { data: comments } = await octokit.rest.issues.listComments({
     owner,
     repo,
     issue_number: issueNumber,
-    body: message,
   });
-  core.notice(result);
-  // }
+  if (!isMessagePresent(message, comments)) {
+    core.notice(`Commenting results...`);
+    const result = await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: issueNumber,
+      body: message,
+    });
+    core.notice(result);
+  }
 };
 
 module.exports = { initReporter, reporterComment };
@@ -26693,8 +26830,8 @@ const { STATUS, ERRORS } = __nccwpck_require__(4906);
 /**
  * Parse markdown and grab the logo path.
  *
- * @param filePath                  Markdown file path
- * @returns {{logoPath: string}}
+ * @param filePath
+ * @returns {string}
  */
 const getLogoPath = (filePath) => {
   const markdownData = fs.readFileSync(filePath, "utf8");
@@ -26711,7 +26848,7 @@ const getLogoPath = (filePath) => {
  *
  * @param extensions
  * @param logoPath
- * @returns {{error: string}}
+ * @returns {{error: null}}
  */
 const checkLogoFile = (extensions, logoPath) => {
   let result = {
@@ -27076,8 +27213,7 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(7928);
-// const github = require("@actions/github");
-// const exec = require("@actions/exec");
+
 const {
   STATUS,
   DEFAULT_FOLDERS,
@@ -27088,19 +27224,32 @@ const { testExtensions } = __nccwpck_require__(1874);
 const { testFrontmatter } = __nccwpck_require__(2989);
 const { testDuplication } = __nccwpck_require__(5970);
 const { testLogo } = __nccwpck_require__(7972);
-const { reporterComment } = __nccwpck_require__(572);
+const { initReporter, reporterComment } = __nccwpck_require__(572);
 
+/**
+ * Gets called for unchecked errors.
+ *
+ * @param error
+ */
 const handleError = (error) => {
   console.error(error);
   core.setFailed(`Unhandled error: ${error}`);
 };
 
+/**
+ * Main action function.
+ *
+ * @returns {Promise<void>}
+ */
 const main = async () => {
-  await reporterComment();
-
   // Get all inputs or fall back to defaults.
+  const repoToken = core.getInput("github-token", { required: true });
+  const debug = core.getInput("debug");
   const changedFiles = core.getInput("changed-files");
   const isFuzzySearch = core.getInput("fuzzy-search");
+
+  // Create a octokit reporter.
+  const reporter = initReporter(repoToken, debug);
 
   // Only continue if any files have changed.
   if (changedFiles.length) {
@@ -27119,6 +27268,11 @@ const main = async () => {
     const imageExtensions =
       core.getMultilineInput("image-extensions") || DEFAULT_IMAGE_EXTENSIONS;
 
+    const extensionReplacements = {
+      MARKDOWN_EXTENSIONS: markdownExtensions,
+      IMAGE_EXTENSIONS: imageExtensions,
+    };
+
     // Check if all markdown files have valid extensions.
     core.notice(`Testing markdown extensions...`);
     const mdExtensionResult = testExtensions(
@@ -27128,6 +27282,14 @@ const main = async () => {
     );
     // Show errors if any and flag the action as failed.
     if (mdExtensionResult.status !== STATUS.VALID) {
+      // Create an error comment.
+      await reporterComment(
+        repoToken,
+        debug,
+        mdExtensionResult,
+        extensionReplacements,
+        reporter
+      );
       core.error(JSON.stringify(mdExtensionResult));
       core.setFailed(JSON.stringify(mdExtensionResult));
     }
@@ -27140,6 +27302,14 @@ const main = async () => {
       directories[1] // image directory
     );
     if (imgExtensionResult.status !== STATUS.VALID) {
+      // Create an error comment.
+      await reporterComment(
+        repoToken,
+        debug,
+        imgExtensionResult,
+        extensionReplacements,
+        reporter
+      );
       core.error(JSON.stringify(imgExtensionResult));
       core.setFailed(JSON.stringify(imgExtensionResult));
     }
