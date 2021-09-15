@@ -26333,7 +26333,8 @@ module.exports = {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const core = __nccwpck_require__(7928);
-const { context, getOctokit } = __nccwpck_require__(3527);
+const github = __nccwpck_require__(3527);
+const { context } = github;
 
 const initReporter = () => {
   const token = core.getInput("github-token", { required: true });
@@ -26342,7 +26343,7 @@ const initReporter = () => {
   const opts = {};
   if (debug === "true") opts.log = console;
 
-  return getOctokit(token, opts);
+  return github.getOctokit(token, opts);
 };
 
 const reporterComment = async (results, reporter = null) => {

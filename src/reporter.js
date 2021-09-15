@@ -1,5 +1,6 @@
 const core = require("@actions/core");
-const { context, getOctokit } = require("@actions/github");
+const github = require("@actions/github");
+const { context } = github;
 
 const initReporter = () => {
   const token = core.getInput("github-token", { required: true });
@@ -8,7 +9,7 @@ const initReporter = () => {
   const opts = {};
   if (debug === "true") opts.log = console;
 
-  return getOctokit(token, opts);
+  return github.getOctokit(token, opts);
 };
 
 const reporterComment = async (results, reporter = null) => {
