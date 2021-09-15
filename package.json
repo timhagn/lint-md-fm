@@ -11,6 +11,7 @@
     "@actions/core": "^1.5.0",
     "@actions/exec": "^1.1.0",
     "@actions/github": "^5.0.0",
+    "@actions/http-client": "^1.0.11",
     "fuse.js": "^6.4.6",
     "gray-matter": "^4.0.3",
     "probe-image-size": "^7.2.1"
