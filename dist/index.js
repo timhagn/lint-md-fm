@@ -26367,7 +26367,7 @@ const reporterComment = async (results, reporter = null) => {
 
   const message = "👋 Thanks for reporting!";
 
-  const { data: comments } = await octokit.issues.listComments({
+  const { data: comments } = await octokit.rest.issues.listComments({
     owner,
     repo,
     issue_number: issueNumber,
