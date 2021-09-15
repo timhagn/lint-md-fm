@@ -11,8 +11,16 @@ const { testExtensions } = require("./src/testExtensions");
 const { testFrontmatter } = require("./src/testFrontmatter");
 const { testDuplication } = require("./src/testDuplication");
 const { testLogo } = require("./src/testLogo");
+const { reporterComment } = require("./src/reporter");
 
-try {
+const handleError = (error) => {
+  console.error(error);
+  core.setFailed(`Unhandled error: ${error}`);
+};
+
+const main = async () => {
+  await reporterComment();
+
   // Get all inputs or fall back to defaults.
   const changedFiles = core.getInput("changed-files");
   const isFuzzySearch = core.getInput("fuzzy-search");
@@ -112,6 +120,7 @@ try {
   } else {
     core.setFailed("No files changed!");
   }
-} catch (error) {
-  core.setFailed(error.message);
-}
+};
+
+process.on("unhandledRejection", handleError);
+main().catch(handleError);
