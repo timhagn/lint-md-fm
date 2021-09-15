@@ -20,12 +20,13 @@ const reporterComment = async (results, reporter = null) => {
   }
 
   core.notice(`Commenting results... ${context}`);
-  await github.issues.createComment({
+  const result = await github.issues.createComment({
     issue_number: context.issue.number,
     owner: context.repo.owner,
     repo: context.repo.repo,
     body: "👋 Thanks for reporting!",
   });
+  core.notice(result);
 };
 
 module.exports = { initReporter, reporterComment };
