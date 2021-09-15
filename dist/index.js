@@ -26352,7 +26352,7 @@ const reporterComment = async (results, reporter = null) => {
   } else {
     octokit = reporter;
   }
-  const context = octokit.context;
+  const context = github.context;
 
   core.notice(`Commenting results... ${JSON.stringify(context)}`);
   const result = await octokit.rest.issues.createComment({
