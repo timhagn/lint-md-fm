@@ -140,6 +140,7 @@ const main = async () => {
         imgExtensionResult,
         markdownResult,
         logoResult,
+        changedFiles,
       })}`
     );
     core.setOutput(
