@@ -23,6 +23,13 @@ const handleError = (error) => {
   core.setFailed(`Unhandled error: ${error}`);
 };
 
+/**
+ * Checks changed files against relevant directories.
+ *
+ * @param changedFiles
+ * @param directories
+ * @returns {boolean}
+ */
 const hasRelevantFilesInDirectories = (changedFiles, directories) =>
   changedFiles.length &&
   changedFiles
@@ -127,6 +134,7 @@ const main = async () => {
       directories[0],
       isFuzzySearch
     );
+    // TODO: check why duplicate wasn't found!
     if (duplicationResult.status !== STATUS.VALID) {
       core.error(JSON.stringify(duplicationResult));
       core.setFailed(JSON.stringify(duplicationResult));
@@ -145,6 +153,7 @@ const main = async () => {
         mdExtensionResult,
         imgExtensionResult,
         markdownResult,
+        duplicationResult,
         logoResult,
         changedFilesArray,
       })}`
@@ -155,6 +164,7 @@ const main = async () => {
         mdExtensionResult,
         imgExtensionResult,
         markdownResult,
+        duplicationResult,
         logoResult,
       })
     );
