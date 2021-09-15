@@ -26374,24 +26374,40 @@ const initReporter = (token, debug) => {
 };
 
 const reporterComment = async (results, reporter = null) => {
-  const token = core.getInput("github-token", { required: true });
+  const repoToken = core.getInput("github-token", { required: true });
   const debug = core.getInput("debug");
 
   let octokit;
   if (!reporter) {
-    octokit = initReporter(token, debug);
+    octokit = initReporter(repoToken, debug);
   } else {
     octokit = reporter;
   }
-  const context = github.context;
-  const { sha: commitSha } = context;
-  const { owner, repo } = context.repo.owner;
-  let issueNumber = context.issue.number;
 
-  if (!issueNumber) {
+  const {
+    payload: { pull_request: pullRequest, issue, repository },
+    sha: commitSha,
+  } = github.context;
+
+  if (!repository) {
+    core.info("unable to determine repository from request type");
+    core.setOutput("comment-created", "false");
+    return;
+  }
+
+  const { full_name: repoFullName } = repository;
+  const [owner, repo] = repoFullName.split("/");
+
+  let issueNumber;
+
+  if (issue && issue.number) {
+    issueNumber = issue.number;
+  } else if (pullRequest && pullRequest.number) {
+    issueNumber = pullRequest.number;
+  } else {
     // If this is not a pull request, attempt to find a PR matching the sha
     const commitPullsList = await listCommitPulls({
-      token,
+      repoToken,
       owner,
       repo,
       commitSha,
@@ -26408,14 +26424,14 @@ const reporterComment = async (results, reporter = null) => {
   //   issue_number: issueNumber,
   // });
   // if (!isMessagePresent(message, comments)) {
-    core.notice(`Commenting results... ${JSON.stringify(context)}`);
-    const result = await octokit.rest.issues.createComment({
-      owner,
-      repo,
-      issue_number: issueNumber,
-      body: message,
-    });
-    core.notice(result);
+  core.notice(`Commenting results...`);
+  const result = await octokit.rest.issues.createComment({
+    owner,
+    repo,
+    issue_number: issueNumber,
+    body: message,
+  });
+  core.notice(result);
   // }
 };
 
