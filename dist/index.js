@@ -35,8 +35,8 @@ const noFilesChanged = () => `
 ## ⚠️ No files changed
 
 Looks like you didn't change any files of relevance.  
-Make sure that you add project and / or image files to your commit before 
-pushing it!
+Make sure that you add project and / or image files 
+to your commit before pushing it!
 `;
 
 const projectAlreadyExists = ({ INVALID_FILES }) => `
@@ -27291,6 +27291,13 @@ const handleError = (error) => {
   core.setFailed(`Unhandled error: ${error}`);
 };
 
+/**
+ * Checks changed files against relevant directories.
+ *
+ * @param changedFiles
+ * @param directories
+ * @returns {boolean}
+ */
 const hasRelevantFilesInDirectories = (changedFiles, directories) =>
   changedFiles.length &&
   changedFiles
@@ -27396,6 +27403,14 @@ const main = async () => {
       isFuzzySearch
     );
     if (duplicationResult.status !== STATUS.VALID) {
+      // Create an error comment for duplicate files.
+      await reporterComment(
+        repoToken,
+        debug,
+        duplicationResult,
+        {},
+        reporter
+      );
       core.error(JSON.stringify(duplicationResult));
       core.setFailed(JSON.stringify(duplicationResult));
     }
@@ -27413,6 +27428,7 @@ const main = async () => {
         mdExtensionResult,
         imgExtensionResult,
         markdownResult,
+        duplicationResult,
         logoResult,
         changedFilesArray,
       })}`
@@ -27423,6 +27439,7 @@ const main = async () => {
         mdExtensionResult,
         imgExtensionResult,
         markdownResult,
+        duplicationResult,
         logoResult,
       })
     );
