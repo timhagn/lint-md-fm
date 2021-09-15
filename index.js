@@ -134,8 +134,15 @@ const main = async () => {
       directories[0],
       isFuzzySearch
     );
-    // TODO: check why duplicate wasn't found!
     if (duplicationResult.status !== STATUS.VALID) {
+      // Create an error comment for duplicate files.
+      await reporterComment(
+        repoToken,
+        debug,
+        duplicationResult,
+        {},
+        reporter
+      );
       core.error(JSON.stringify(duplicationResult));
       core.setFailed(JSON.stringify(duplicationResult));
     }
