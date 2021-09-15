@@ -26347,15 +26347,15 @@ const initReporter = () => {
 };
 
 const reporterComment = async (results, reporter = null) => {
-  let github;
+  let octokit;
   if (!reporter) {
-    github = initReporter();
+    octokit = initReporter();
   } else {
-    github = reporter;
+    octokit = reporter;
   }
 
   core.notice(`Commenting results... ${context}`);
-  const result = await github.issues.createComment({
+  const result = await octokit.rest.issues.createComment({
     issue_number: context.issue.number,
     owner: context.repo.owner,
     repo: context.repo.repo,
