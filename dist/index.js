@@ -4,25 +4,53 @@
 /***/ 5208:
 /***/ ((module) => {
 
+/**
+ * Generates a markdown error text for invalid extensions.
+ *
+ * @returns {string}
+ */
 const extensionIsInvalid = ({
   MARKDOWN_EXTENSIONS,
   IMAGE_EXTENSIONS,
   INVALID_FILES,
 }) =>
   `
-## Extensions Invalid!
+## ⚠️ Extensions Invalid!
 
 **The extension of one or more of your committed files is invalid!**  
 
-For your project files they should have one of these: ${MARKDOWN_EXTENSIONS}.  
-For your logo images they should have one of these: ${IMAGE_EXTENSIONS}.  
+For your project files they should have one of these: **${MARKDOWN_EXTENSIONS}**    
+For your logo images they should have one of these: **${IMAGE_EXTENSIONS}**  
 
-The following files had invalid extensions:  
-${INVALID_FILES}
+The following files have invalid extensions:  
+**${INVALID_FILES}**
   `;
 
+/**
+ * Returns a basic markdown error for empty commits.
+ *
+ * @returns {string}
+ */
+const noFilesChanged = () => `
+## ⚠️ No files changed
+
+Looks like you didn't change any files of relevance.  
+**Make sure that you add files to your commit before pushing it!**
+`;
+
+const projectAlreadyExists = ({ INVALID_FILES }) => `
+## ⚠️ Duplicate Project!
+
+**The project you are trying to add does already exist!**
+
+The following files created duplication errors:  
+**${INVALID_FILES}**
+`;
+
 const MARKDOWN_CONTENTS = {
+  NO_FILES_CHANGED: noFilesChanged,
   EXTENSION_IS_INVALID: extensionIsInvalid,
+  PROJECT_ALREADY_EXIST: projectAlreadyExists,
 };
 
 module.exports = { MARKDOWN_CONTENTS };
@@ -26295,15 +26323,17 @@ exports.checkMarkdown = checkMarkdown;
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const { MARKDOWN_CONTENTS } = __nccwpck_require__(5208);
+const { ERRORS } = __nccwpck_require__(4906);
 
 // Error codes and strings for each possible error.
 // const ERRORS = {
+//   NO_FILES_CHANGED: "NO_FILES_CHANGED", // No relevant files have been changed in the commit.
 //   EXTENSION_INVALID: "EXTENSION_IS_INVALID", // Markdown or logo extension is not valid.
 //   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
 
 //   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
-//   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
 
+//   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
 //   SLUG: "SLUG_NOT_EXIST", // "slug" tag does not exist in the markdown.
 //   DATE: "DATE_NOT_EXIST", // "date" tag does not exist in the markdown.
 //   TITLE: "TITLE_NOT_EXIST", // "title" tag does not exist in the markdown.
@@ -26325,26 +26355,50 @@ const getCurrentError = (results) => {
     return results.errors[0].error;
   }
   return "";
-}
+};
 
-const getInvalidFiles = (results) => {
+const getInvalidExtensionFiles = (results) => {
   if (results.errors) {
-    return results.errors.map(({file}) => file).join(', ')
+    return results.errors.map(({ file }) => file).join("   ");
+  }
+  return "";
+};
+
+const getInvalidDuplicateFiles = (results) => {
+  if (results.errors) {
+    return results.errors
+      .reduce((accumulatedErrors, { error, file, duplicates }) => {
+        if (error === ERRORS.PROJECT_DUPLICATION) {
+          const duplicationErrorMessage = `${file} had the following duplicates ${duplicates}`;
+          accumulatedErrors.push(duplicationErrorMessage);
+        }
+        return accumulatedErrors;
+      }, [])
+      .join("   ");
   }
   return "";
 };
 
 const createMessageFromResults = (results, replacements = {}) => {
   const currentError = getCurrentError(results);
-  if (currentError) {
-    const fileReplacements = getInvalidFiles(results);
-    const allReplacements = {
-      ...replacements,
-      INVALID_FILES: fileReplacements,
-    };
-    return MARKDOWN_CONTENTS[currentError](allReplacements);
+  switch (currentError) {
+    case ERRORS.NO_FILES_CHANGED:
+      return MARKDOWN_CONTENTS[currentError]();
+    case ERRORS.EXTENSION_INVALID:
+      const fileReplacements = getInvalidExtensionFiles(results);
+      const allExtensionReplacements = {
+        ...replacements,
+        INVALID_FILES: fileReplacements,
+      };
+      return MARKDOWN_CONTENTS[currentError](allExtensionReplacements);
+    case ERRORS.PROJECT_DUPLICATION:
+      const allDuplicateReplacements = {
+        INVALID_FILES: getInvalidDuplicateFiles(results),
+      };
+      return MARKDOWN_CONTENTS[currentError](allDuplicateReplacements);
+    default:
+      return "";
   }
-  return "";
 };
 
 module.exports = { createMessageFromResults };
@@ -26366,6 +26420,7 @@ const STATUS = {
 
 // Error codes and strings for each possible error.
 const ERRORS = {
+  NO_FILES_CHANGED: "NO_FILES_CHANGED", // No relevant files have been changed in the commit.
   EXTENSION_INVALID: "EXTENSION_IS_INVALID", // Markdown or logo extension is not valid.
   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
@@ -26549,8 +26604,6 @@ const reporterComment = async (
       commitPullsList && getIssueNumberFromCommitPullsList(commitPullsList);
   }
 
-  // TODO: create Message from results.
-  // const message = "👋 Thanks for reporting!";
   // Create message from errors or return success message.
   const message = createMessageFromResults(results, extensionReplacements);
 
@@ -26685,13 +26738,13 @@ const testDuplication = (
       );
       if (checkResult.length > 0) {
         result.errors.push({
-          errors: ERRORS.PROJECT_DUPLICATION,
+          error: ERRORS.PROJECT_DUPLICATION,
           file: filePath,
           duplicates: checkResult,
         });
       }
     } else {
-      result.errors.push({ errors: ERRORS.SLUG, file: filePath });
+      result.errors.push({ error: ERRORS.SLUG, file: filePath });
     }
   });
 
@@ -27216,6 +27269,7 @@ const core = __nccwpck_require__(7928);
 
 const {
   STATUS,
+  ERRORS,
   DEFAULT_FOLDERS,
   DEFAULT_MARKDOWN_EXTENSIONS,
   DEFAULT_IMAGE_EXTENSIONS,
@@ -27282,7 +27336,7 @@ const main = async () => {
     );
     // Show errors if any and flag the action as failed.
     if (mdExtensionResult.status !== STATUS.VALID) {
-      // Create an error comment.
+      // Create an error comment for invalid project file extensions.
       await reporterComment(
         repoToken,
         debug,
@@ -27302,7 +27356,7 @@ const main = async () => {
       directories[1] // image directory
     );
     if (imgExtensionResult.status !== STATUS.VALID) {
-      // Create an error comment.
+      // Create an error comment for invalid image extensions.
       await reporterComment(
         repoToken,
         debug,
@@ -27353,6 +27407,7 @@ const main = async () => {
         imgExtensionResult,
         markdownResult,
         logoResult,
+        changedFilesArray,
       })}`
     );
     core.setOutput(
@@ -27365,6 +27420,14 @@ const main = async () => {
       })
     );
   } else {
+    // Create an error comment.
+    await reporterComment(
+      repoToken,
+      debug,
+      { errors: [{ error: ERRORS.NO_FILES_CHANGED }]},
+      {},
+      reporter
+    );
     core.setFailed("No files changed!");
   }
 };
