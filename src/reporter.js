@@ -45,7 +45,7 @@ const reporterComment = async (results, reporter = null) => {
 
   let octokit;
   if (!reporter) {
-    octokit = initReporter();
+    octokit = initReporter(token, debug);
   } else {
     octokit = reporter;
   }
