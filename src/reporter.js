@@ -19,6 +19,7 @@ const reporterComment = async (results, reporter = null) => {
     github = reporter;
   }
 
+  core.notice(`Commenting results... ${context}`);
   await github.issues.createComment({
     issue_number: context.issue.number,
     owner: context.repo.owner,
