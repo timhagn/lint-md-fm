@@ -67,13 +67,13 @@ const reporterComment = async (results, reporter = null) => {
   }
 
   const message = "👋 Thanks for reporting!";
-
-  const { data: comments } = await octokit.rest.issues.listComments({
-    owner,
-    repo,
-    issue_number: issueNumber,
-  });
-  if (!isMessagePresent(message, comments)) {
+  //
+  // const { data: comments } = await octokit.rest.issues.listComments({
+  //   owner,
+  //   repo,
+  //   issue_number: issueNumber,
+  // });
+  // if (!isMessagePresent(message, comments)) {
     core.notice(`Commenting results... ${JSON.stringify(context)}`);
     const result = await octokit.rest.issues.createComment({
       owner,
@@ -82,7 +82,7 @@ const reporterComment = async (results, reporter = null) => {
       body: message,
     });
     core.notice(result);
-  }
+  // }
 };
 
 module.exports = { initReporter, reporterComment };
