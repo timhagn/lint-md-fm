@@ -1,6 +1,5 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { context } = github;
 
 const initReporter = () => {
   const token = core.getInput("github-token", { required: true });
@@ -19,8 +18,9 @@ const reporterComment = async (results, reporter = null) => {
   } else {
     octokit = reporter;
   }
+  const context = octokit.context;
 
-  core.notice(`Commenting results... ${context}`);
+  core.notice(`Commenting results... ${JSON.stringify(context)}`);
   const result = await octokit.rest.issues.createComment({
     issue_number: context.issue.number,
     owner: context.repo.owner,
