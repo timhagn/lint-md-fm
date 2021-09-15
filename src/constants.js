@@ -9,6 +9,7 @@ const STATUS = {
 
 // Error codes and strings for each possible error.
 const ERRORS = {
+  NO_FILES_CHANGED: "NO_FILES_CHANGED", // No relevant files have been changed in the commit.
   EXTENSION_INVALID: "EXTENSION_IS_INVALID", // Markdown or logo extension is not valid.
   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.

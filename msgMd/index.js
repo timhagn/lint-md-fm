@@ -1,3 +1,8 @@
+/**
+ * Generates a markdown error text for invalid extensions.
+ *
+ * @returns {string}
+ */
 const extensionIsInvalid = ({
   MARKDOWN_EXTENSIONS,
   IMAGE_EXTENSIONS,
@@ -8,14 +13,27 @@ const extensionIsInvalid = ({
 
 **The extension of one or more of your committed files is invalid!**  
 
-For your project files they should have one of these: ${MARKDOWN_EXTENSIONS}.  
-For your logo images they should have one of these: ${IMAGE_EXTENSIONS}.  
+For your project files they should have one of these: **${MARKDOWN_EXTENSIONS}**    
+For your logo images they should have one of these: **${IMAGE_EXTENSIONS}**  
 
-The following files had invalid extensions:  
-${INVALID_FILES}
+The following files have invalid extensions:  
+**${INVALID_FILES}**
   `;
 
+/**
+ * Returns a basic markdown error for empty commits.
+ *
+ * @returns {string}
+ */
+const noFilesChanged = () => `
+## No files changed
+
+Looks like you didn't change any files of relevance.  
+**Make sure that you add files to your commit before pushing it!**
+`;
+
 const MARKDOWN_CONTENTS = {
+  NO_FILES_CHANGED: noFilesChanged,
   EXTENSION_IS_INVALID: extensionIsInvalid,
 };
 

@@ -2,12 +2,13 @@ const { MARKDOWN_CONTENTS } = require("../msgMd");
 
 // Error codes and strings for each possible error.
 // const ERRORS = {
+//   NO_FILES_CHANGED: "NO_FILES_CHANGED", // No relevant files have been changed in the commit.
 //   EXTENSION_INVALID: "EXTENSION_IS_INVALID", // Markdown or logo extension is not valid.
 //   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
 
 //   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
-//   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
 
+//   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
 //   SLUG: "SLUG_NOT_EXIST", // "slug" tag does not exist in the markdown.
 //   DATE: "DATE_NOT_EXIST", // "date" tag does not exist in the markdown.
 //   TITLE: "TITLE_NOT_EXIST", // "title" tag does not exist in the markdown.
@@ -31,7 +32,7 @@ const getCurrentError = (results) => {
   return "";
 }
 
-const getInvalidFiles = (results) => {
+const getInvalidExtensionFiles = (results) => {
   if (results.errors) {
     return results.errors.map(({file}) => file).join(', ')
   }
@@ -40,15 +41,19 @@ const getInvalidFiles = (results) => {
 
 const createMessageFromResults = (results, replacements = {}) => {
   const currentError = getCurrentError(results);
-  if (currentError) {
-    const fileReplacements = getInvalidFiles(results);
-    const allReplacements = {
-      ...replacements,
-      INVALID_FILES: fileReplacements,
-    };
-    return MARKDOWN_CONTENTS[currentError](allReplacements);
+  switch (currentError) {
+    case 'NO_FILES_CHANGED':
+      return MARKDOWN_CONTENTS[currentError]();
+    case 'EXTENSION_IS_INVALID':
+      const fileReplacements = getInvalidExtensionFiles(results);
+      const allReplacements = {
+        ...replacements,
+        INVALID_FILES: fileReplacements,
+      };
+      return MARKDOWN_CONTENTS[currentError](allReplacements);
+    default:
+      return "";
   }
-  return "";
 };
 
 module.exports = { createMessageFromResults };

@@ -2,6 +2,7 @@ const core = require("@actions/core");
 
 const {
   STATUS,
+  ERRORS,
   DEFAULT_FOLDERS,
   DEFAULT_MARKDOWN_EXTENSIONS,
   DEFAULT_IMAGE_EXTENSIONS,
@@ -151,6 +152,14 @@ const main = async () => {
       })
     );
   } else {
+    // Create an error comment.
+    await reporterComment(
+      repoToken,
+      debug,
+      { errors: [{ error: ERRORS.NO_FILES_CHANGED }]},
+      {},
+      reporter
+    );
     core.setFailed("No files changed!");
   }
 };
