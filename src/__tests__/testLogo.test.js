@@ -28,7 +28,7 @@ Object {
       "error": "INVALID_LOGO_SIZE",
       "file": "testFiles/logo_size.md",
       "height": 508,
-      "logo": "testFiles/Museoftheday.svg",
+      "logo": "testFiles/logo_size.svg",
       "width": 300,
     },
   ],
