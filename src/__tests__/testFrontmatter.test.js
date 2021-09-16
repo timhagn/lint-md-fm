@@ -66,3 +66,28 @@ Object {
 }
 `);
 });
+
+test("check Frontmatter from file for invalid categories", () => {
+  const changedFiles = ["testFiles/category_invalid.md"];
+  const directory = "testFiles";
+  const frontmatterErrors = testFrontmatter(
+    DEFAULT_MARKDOWN_EXTENSIONS,
+    changedFiles,
+    directory
+  );
+  expect(frontmatterErrors).toMatchInlineSnapshot(`
+Object {
+  "errors": Array [
+    Object {
+      "error": "CATEGORY_INVALID",
+      "file": "testFiles/category_invalid.md",
+      "values": Array [
+        "nfts",
+        "test",
+      ],
+    },
+  ],
+  "status": "INVALID",
+}
+`);
+});

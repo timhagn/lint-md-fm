@@ -1,3 +1,5 @@
+const { ERRORS } = require("../src/constants");
+
 /**
  * Generates a markdown error text for invalid extensions.
  *
@@ -64,12 +66,24 @@ The following files had missing tags:
 ${INVALID_FILES}
 `;
 
+const categoryInvalid = ({ INVALID_FILES }) => `
+## ⚠️ Markdown has invalid Categories!
+
+**One or more of your committed Markdown files have invalid categories!**
+
+Be sure to check for & fix them!
+
+The following files had invalid categories:  
+${INVALID_FILES}
+`;
+
 const MARKDOWN_CONTENTS = {
-  NO_FILES_CHANGED: noFilesChanged,
-  EXTENSION_IS_INVALID: extensionIsInvalid,
-  PROJECT_ALREADY_EXIST: projectAlreadyExists,
-  DATA_INVALID: dataInvalid,
+  [ERRORS.NO_FILES_CHANGED]: noFilesChanged,
+  [ERRORS.EXTENSION_INVALID]: extensionIsInvalid,
+  [ERRORS.PROJECT_DUPLICATION]: projectAlreadyExists,
+  [ERRORS.DATA_INVALID]: dataInvalid,
   COMBINED_MISSING_TAGS: missingTags,
+  [ERRORS.CATEGORY_INVALID]: categoryInvalid,
 };
 
 module.exports = { MARKDOWN_CONTENTS };

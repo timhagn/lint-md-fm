@@ -48,3 +48,29 @@ The following files had missing tags:
 "
 `);
 });
+
+test("check Frontmatter from file for invalid categories", () => {
+  const invalidCategories = {
+    errors: [
+      {
+        error: "CATEGORY_INVALID",
+        file: "testFiles/category_invalid.md",
+        values: ["nfts", "test"],
+      },
+    ],
+    status: "INVALID",
+  };
+  const resultingMessage = createMessageFromResults(invalidCategories);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Markdown has invalid Categories!
+
+**One or more of your committed Markdown files have invalid categories!**
+
+Be sure to check for & fix them!
+
+The following files had invalid categories:  
+**testFiles/category_invalid.md** had the following invalid categories **nfts, test**
+"
+`);
+});

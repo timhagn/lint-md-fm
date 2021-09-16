@@ -10,14 +10,14 @@ const { ERRORS, COMBINED_MISSING_TAG_ERRORS } = require("./constants");
 //   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
 //   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
 
-//   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
-//   SLUG: "SLUG_NOT_EXIST", // "slug" tag does not exist in the markdown.
-//   DATE: "DATE_NOT_EXIST", // "date" tag does not exist in the markdown.
-//   TITLE: "TITLE_NOT_EXIST", // "title" tag does not exist in the markdown.
-//   LOGLINE: "LOGLINE_NOT_EXIST", // "logline" tag does not exist in the markdown.
-//   CTA: "CTA_NOT_EXIST", // "cta" tag does not exist in the markdown.
-//   LOGO: "LOGO_NOT_EXIST", // "logo" tag does not exist in the markdown.
-//   STATUS: "STATUS_NOT_EXIST", // "state" tag does not exist in the markdown.
+//#   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
+//#   SLUG: "SLUG_NOT_EXIST", // "slug" tag does not exist in the markdown.
+//#   DATE: "DATE_NOT_EXIST", // "date" tag does not exist in the markdown.
+//#   TITLE: "TITLE_NOT_EXIST", // "title" tag does not exist in the markdown.
+//#   LOGLINE: "LOGLINE_NOT_EXIST", // "logline" tag does not exist in the markdown.
+//#   CTA: "CTA_NOT_EXIST", // "cta" tag does not exist in the markdown.
+//#   LOGO: "LOGO_NOT_EXIST", // "logo" tag does not exist in the markdown.
+//#   STATUS: "STATUS_NOT_EXIST", // "state" tag does not exist in the markdown.
 
 //   LOGO_FILE: "LOGO_FILE_NOT_EXIST", // logo file does not exist in the img directory.
 //   LOGO_FORMAT: "INVALID_LOGO_FORMAT", // logo file format does not match the extension.
@@ -109,6 +109,29 @@ const getMissingTagFilesString = (results) => {
 };
 
 /**
+ * Returns a string with a list of files with invalid categories.
+ *
+ * @param results
+ * @returns {string|*}
+ */
+const getInvalidCategoriesFilesString = (results) => {
+  if (results.errors) {
+    return results.errors
+      .reduce((accumulatedErrors, { error, file, values }) => {
+        if (error === ERRORS.CATEGORY_INVALID) {
+          const invalidCategoriesErrorMessage = `**${file}** had the following invalid categories **${values.join(
+            ", "
+          )}**`;
+          accumulatedErrors.push(invalidCategoriesErrorMessage);
+        }
+        return accumulatedErrors;
+      }, [])
+      .join("   ");
+  }
+  return "";
+};
+
+/**
  * Parses the resulting errors and generates comments accordingly.
  *
  * @param results
@@ -143,6 +166,13 @@ const createMessageFromResults = (results, replacements = {}) => {
       };
       return MARKDOWN_CONTENTS["COMBINED_MISSING_TAGS"](
         allMissingTagFilesReplacements
+      );
+    case currentError === ERRORS.CATEGORY_INVALID:
+      const allInvalidCategoryFilesReplacements = {
+        INVALID_FILES: getInvalidCategoriesFilesString(results),
+      };
+      return MARKDOWN_CONTENTS[currentError](
+        allInvalidCategoryFilesReplacements
       );
     default:
       return "";
