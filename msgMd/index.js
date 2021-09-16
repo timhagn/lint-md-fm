@@ -100,6 +100,14 @@ The following files had invalid or missing logos:
 ${INVALID_FILES}
 `;
 
+const allOK = () => `
+## ✅ Project files checked and OK.
+
+Please give the community and us some time to check it out before it gets merged!
+
+Thanks for adding it!
+`;
+
 const MARKDOWN_CONTENTS = {
   [ERRORS.NO_FILES_CHANGED]: noFilesChanged,
   [ERRORS.EXTENSION_INVALID]: extensionIsInvalid,
@@ -109,6 +117,7 @@ const MARKDOWN_CONTENTS = {
   [ERRORS.CATEGORY_INVALID]: categoryInvalid,
   [ERRORS.LOGO_INVALID]: logoInvalid,
   COMBINED_LOGO_ERRORS: logoErrors,
+  ALL_OK: allOK,
 };
 
 module.exports = { MARKDOWN_CONTENTS };

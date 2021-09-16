@@ -157,11 +157,11 @@ const main = async () => {
 
     core.notice(
       `Result: ${JSON.stringify({
-        mdExtensionResult,
-        imgExtensionResult,
-        markdownResult,
-        duplicationResult,
-        logoResult,
+        ...mdExtensionResult,
+        ...imgExtensionResult,
+        ...markdownResult,
+        ...duplicationResult,
+        ...logoResult,
         changedFilesArray,
       })}`
     );

@@ -32,15 +32,17 @@ More info on creating JavaScript GitHub actions may be found on
 
 ---
 
-## Currently: Hello world javascript action
+## Markdown Frontmatter & project files linter
 
-This action prints "Hello World" or "Hello" + the name of a person to greet to
-the log.
+This action checks all added files of a push / PR to the 
+[solana-labs/ecosystem](https://github.com/solana-labs/ecosystem) repo.
 
 ## Inputs
 
 | **Input Name**      | **Required** | **Default**                     | **Description**                                                                                                |
 | ------------------- | ------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| repoToken           | true         | -                               | The `GITHUB_TOKEN` to be bale to post comments on the PR.                                                      |
+| debug               | false        | false                           | Show additional info.                                                                                          |
 | changed-files       | true         | -                               | Which files to lint, get from [tj-actions/changed-files](https://github.com/marketplace/actions/changed-files) |
 | directories         | false        | "projects", "img"               | Multiple directories to search in.                                                                             |
 | markdown-extensions | true         | ".md", ".mdx"                   | Multiple extensions of Markdown files to check for.                                                            |
@@ -88,8 +90,8 @@ Adapt this action to one we can use to check the
 - [x] (only for bonus-points: image sizes)
 - [x] categories not in the `CATEGORY_MAPPING`
 - [x] add strict / fuzzy matching for `slug` & `title` duplicate checking
-- [ ] cleaned up reporting / logging
-- [ ] adapt this README file to the functionality of the final action
+- [x] cleaned up reporting / logging
+- [x] adapt this README file to the functionality of the final action
 
 Find [`gray-matter`](https://www.npmjs.com/package/gray-matter) already
 installed to work with Markdown & Frontmatter.

@@ -254,7 +254,7 @@ const createMessageFromResults = (results, replacements = {}) => {
         allLogoErrorsFilesReplacements
       );
     default:
-      return "";
+      return MARKDOWN_CONTENTS["ALL_OK"]();
   }
 };
 
