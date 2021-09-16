@@ -42,6 +42,7 @@ const checkLogoFile = (extensions, logoPath) => {
     if (extensions.indexOf(extension) < 0) {
       // Logo file extension is not valid.
       result.error = ERRORS.LOGO_FORMAT;
+      result.ext = "";
     } else {
       const data = fs.readFileSync(logoPath);
       const meta = probe.sync(data); // Grab meta information of the logo. See https://www.npmjs.com/package/probe-image-size
@@ -52,9 +53,12 @@ const checkLogoFile = (extensions, logoPath) => {
         // Check the logo image ratio
         if (ratio < 0.9 || ratio > 1.1) {
           result.error = ERRORS.LOGO_SIZE;
+          result.width = meta.width;
+          result.height = meta.height;
         }
       } else {
         result.error = ERRORS.LOGO_FORMAT;
+        result.ext = ext;
       }
     }
   }
@@ -78,7 +82,11 @@ const testLogo = (extensions, changedFiles) => {
     const logoPath = getLogoPath(filePath); // Grab logo file path.
     const logoCheckResult = checkLogoFile(extensions, logoPath); // Grab the logo validation result.
     if (logoCheckResult.error) {
-      result.errors.push({ error: logoCheckResult.error, file: logoPath });
+      result.errors.push({
+        ...logoCheckResult,
+        file: filePath,
+        logo: logoPath,
+      });
     }
   });
 

@@ -8,7 +8,7 @@ const { ERRORS, COMBINED_MISSING_TAG_ERRORS } = require("./constants");
 //#   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
 
 //#   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
-//   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
+//#   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
 
 //#   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
 //#   SLUG: "SLUG_NOT_EXIST", // "slug" tag does not exist in the markdown.
