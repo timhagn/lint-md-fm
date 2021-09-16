@@ -26893,8 +26893,12 @@ const testFrontmatter = (markdownExtensions, changedFiles, directory) => {
         const markdownData = fs.readFileSync(filePath, "utf8"); // Read markdown content from the file.
         const markdownResult = checkMarkdown(markdownData); // Lint the markdown using the Linter.
         if (markdownResult.errors.length > 0) {
-          // Grab markdown syntax errors
-          result.errors.push({ ...markdownResult.errors, file: filePath });
+          // Grab markdown syntax errors & process them to the common format.
+          const processedErrors = markdownResult.errors.map((error) => ({
+            error,
+            file: filePath,
+          }));
+          result.errors.push(processedErrors);
         }
       }
     }
