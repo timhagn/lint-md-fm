@@ -7,7 +7,7 @@ const { ERRORS, COMBINED_MISSING_TAG_ERRORS } = require("./constants");
 //#   EXTENSION_INVALID: "EXTENSION_IS_INVALID", // Markdown or logo extension is not valid.
 //#   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
 
-//   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
+//#   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
 //   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
 
 //#   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
@@ -109,6 +109,27 @@ const getMissingTagFilesString = (results) => {
 };
 
 /**
+ * Returns a string with a list of files with invalid logo tags.
+ *
+ * @param results
+ * @returns {string|*}
+ */
+const getInvalidLogoFilesString = (results) => {
+  if (results.errors) {
+    return results.errors
+      .reduce((accumulatedErrors, { error, file, logo }) => {
+        if (error === ERRORS.LOGO_INVALID) {
+          const invalidLogoErrorMessage = `**${file}** had an invalid logo tag **${logo}**`;
+          accumulatedErrors.push(invalidLogoErrorMessage);
+        }
+        return accumulatedErrors;
+      }, [])
+      .join("   ");
+  }
+  return "";
+};
+
+/**
  * Returns a string with a list of files with invalid categories.
  *
  * @param results
@@ -174,6 +195,11 @@ const createMessageFromResults = (results, replacements = {}) => {
       return MARKDOWN_CONTENTS[currentError](
         allInvalidCategoryFilesReplacements
       );
+    case currentError === ERRORS.LOGO_INVALID:
+      const allInvalidLogoFilesReplacements = {
+        INVALID_FILES: getInvalidLogoFilesString(results),
+      };
+      return MARKDOWN_CONTENTS[currentError](allInvalidLogoFilesReplacements);
     default:
       return "";
   }

@@ -77,6 +77,17 @@ The following files had invalid categories:
 ${INVALID_FILES}
 `;
 
+const logoInvalid = ({ INVALID_FILES }) => `
+## ⚠️ Markdown has invalid Logo tags!
+
+**One or more of your committed Markdown files have invalid logo tags!**
+
+Be sure they don't contain whitespaces or non web-safe characters!
+
+The following files had invalid logo tags:  
+${INVALID_FILES}
+`;
+
 const MARKDOWN_CONTENTS = {
   [ERRORS.NO_FILES_CHANGED]: noFilesChanged,
   [ERRORS.EXTENSION_INVALID]: extensionIsInvalid,
@@ -84,6 +95,7 @@ const MARKDOWN_CONTENTS = {
   [ERRORS.DATA_INVALID]: dataInvalid,
   COMBINED_MISSING_TAGS: missingTags,
   [ERRORS.CATEGORY_INVALID]: categoryInvalid,
+  [ERRORS.LOGO_INVALID]: logoInvalid,
 };
 
 module.exports = { MARKDOWN_CONTENTS };

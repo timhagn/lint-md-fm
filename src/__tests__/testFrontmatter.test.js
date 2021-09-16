@@ -91,3 +91,25 @@ Object {
 }
 `);
 });
+
+test("check Frontmatter from file for invalid logo files", () => {
+  const changedFiles = ["testFiles/logo_invalid.md"];
+  const directory = "testFiles";
+  const frontmatterErrors = testFrontmatter(
+    DEFAULT_MARKDOWN_EXTENSIONS,
+    changedFiles,
+    directory
+  );
+  expect(frontmatterErrors).toMatchInlineSnapshot(`
+Object {
+  "errors": Array [
+    Object {
+      "error": "INVALID_LOGO_NAME",
+      "file": "testFiles/logo_invalid.md",
+      "logo": "/img/Pixel Penguins.svg",
+    },
+  ],
+  "status": "INVALID",
+}
+`);
+});

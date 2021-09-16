@@ -74,3 +74,29 @@ The following files had invalid categories:
 "
 `);
 });
+
+test("check Frontmatter from file for invalid logo tags", () => {
+  const invalidLogos = {
+    errors: [
+      {
+        error: "INVALID_LOGO_NAME",
+        file: "testFiles/logo_invalid.md",
+        logo: "/img/Pixel Penguins.svg",
+      },
+    ],
+    status: "INVALID",
+  };
+  const resultingMessage = createMessageFromResults(invalidLogos);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Markdown has invalid Logo tags!
+
+**One or more of your committed Markdown files have invalid logo tags!**
+
+Be sure they don't contain whitespaces or non web-safe characters!
+
+The following files had invalid logo tags:  
+**testFiles/logo_invalid.md** had an invalid logo tag **/img/Pixel Penguins.svg**
+"
+`);
+});

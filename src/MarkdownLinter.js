@@ -67,7 +67,10 @@ function checkMarkdown(markdown) {
       } else {
         // Logo path should not include white space.
         if (parsed.data.logo.includes(" ")) {
-          result.errors.push({ error: ERRORS.LOGO_INVALID });
+          result.errors.push({
+            error: ERRORS.LOGO_INVALID,
+            logo: parsed.data.logo,
+          });
         }
       }
 
