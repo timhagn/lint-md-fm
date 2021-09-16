@@ -53,6 +53,7 @@ const main = async () => {
   const reporter = initReporter(repoToken, debug);
 
   // Only continue if any relevant files have changed.
+  // TODO: do we need to check on pushes?
   if (
     changedFiles.length &&
     hasRelevantFilesInDirectories(changedFiles, directories)

@@ -46,7 +46,7 @@ const checkDuplication = (slugList, slug, filePath, isFuzzySearch) => {
   if (isFuzzySearch) {
     const fuse = new Fuse(slugList, {
       includeScore: true,
-      threshold: 0.2,
+      threshold: 0.1,
       keys: ["slug"],
     });
     const duplications = fuse.search(slug); // Grab all matches using fuse.js

@@ -42,10 +42,22 @@ The following files created duplication errors:
 **${INVALID_FILES}**
 `;
 
+const dataInvalid = ({ INVALID_FILES }) => `
+## ⚠️ Markdown data Invalid!
+
+**The content of one or more of your committed Markdown files is invalid!**
+
+Check if you correctly closed all strings and suchlike!
+
+The following files had invalid data:  
+**${INVALID_FILES}**
+`;
+
 const MARKDOWN_CONTENTS = {
   NO_FILES_CHANGED: noFilesChanged,
   EXTENSION_IS_INVALID: extensionIsInvalid,
   PROJECT_ALREADY_EXIST: projectAlreadyExists,
+  DATA_INVALID: dataInvalid,
 };
 
 module.exports = { MARKDOWN_CONTENTS };

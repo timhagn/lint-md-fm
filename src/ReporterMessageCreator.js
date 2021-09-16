@@ -40,12 +40,12 @@ const getCurrentError = (results) => {
 };
 
 /**
- * Returns all files with invalid extensions combined.
+ * Returns all invalid files combined.
  *
  * @param results
  * @returns {string|*}
  */
-const getInvalidExtensionFiles = (results) => {
+const getInvalidFiles = (results) => {
   if (results.errors) {
     return results.errors.map(({ file }) => file).join("   ");
   }
@@ -63,7 +63,9 @@ const getInvalidDuplicateFiles = (results) => {
     return results.errors
       .reduce((accumulatedErrors, { error, file, duplicates }) => {
         if (error === ERRORS.PROJECT_DUPLICATION) {
-          const duplicationErrorMessage = `**${file}** had the following duplicates **${duplicates.join(', ')}**`;
+          const duplicationErrorMessage = `**${file}** had the following duplicates **${duplicates.join(
+            ", "
+          )}**`;
           accumulatedErrors.push(duplicationErrorMessage);
         }
         return accumulatedErrors;
@@ -86,10 +88,10 @@ const createMessageFromResults = (results, replacements = {}) => {
     case ERRORS.NO_FILES_CHANGED:
       return MARKDOWN_CONTENTS[currentError]();
     case ERRORS.EXTENSION_INVALID:
-      const fileReplacements = getInvalidExtensionFiles(results);
+      const invalidExtensionfileReplacements = getInvalidFiles(results);
       const allExtensionReplacements = {
         ...replacements,
-        INVALID_FILES: fileReplacements,
+        INVALID_FILES: invalidExtensionfileReplacements,
       };
       return MARKDOWN_CONTENTS[currentError](allExtensionReplacements);
     case ERRORS.PROJECT_DUPLICATION:
@@ -97,6 +99,11 @@ const createMessageFromResults = (results, replacements = {}) => {
         INVALID_FILES: getInvalidDuplicateFiles(results),
       };
       return MARKDOWN_CONTENTS[currentError](allDuplicateReplacements);
+    case ERRORS.DATA_INVALID:
+      const allInvalidFilesReplacements = {
+        INVALID_FILES: getInvalidFiles(results),
+      };
+      return MARKDOWN_CONTENTS[currentError](allInvalidFilesReplacements);
     default:
       return "";
   }

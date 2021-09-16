@@ -34,48 +34,48 @@ function checkMarkdown(markdown) {
         if (invalidCategories.length > 0) {
           // include invalid categories in the error.
           result.errors.push({
-            code: ERRORS.CATEGORY_INVALID,
+            error: ERRORS.CATEGORY_INVALID,
             values: invalidCategories,
           });
         }
       } else {
-        result.errors.push({ code: ERRORS.CATEGORY });
+        result.errors.push({ error: ERRORS.CATEGORY });
       }
 
       if (!parsed.data.slug) {
-        result.errors.push({ code: ERRORS.SLUG });
+        result.errors.push({ error: ERRORS.SLUG });
       }
 
       if (!parsed.data.date) {
-        result.errors.push({ code: ERRORS.DATE });
+        result.errors.push({ error: ERRORS.DATE });
       }
 
       if (!parsed.data.title) {
-        result.errors.push({ code: ERRORS.TITLE });
+        result.errors.push({ error: ERRORS.TITLE });
       }
 
       if (!parsed.data.logline) {
-        result.errors.push({ code: ERRORS.LOGLINE });
+        result.errors.push({ error: ERRORS.LOGLINE });
       }
 
       if (!parsed.data.cta) {
-        result.errors.push({ code: ERRORS.CTA });
+        result.errors.push({ error: ERRORS.CTA });
       }
 
       if (!parsed.data.logo) {
-        result.errors.push({ code: ERRORS.LOGO });
+        result.errors.push({ error: ERRORS.LOGO });
       } else {
         // Logo path should not include white space.
         if (parsed.data.logo.includes(" ")) {
-          result.errors.push({ code: ERRORS.LOGO_INVALID });
+          result.errors.push({ error: ERRORS.LOGO_INVALID });
         }
       }
 
       if (!parsed.data.status) {
-        result.errors.push({ code: ERRORS.STATUS });
+        result.errors.push({ error: ERRORS.STATUS });
       }
     } else {
-      result.errors.push({ code: ERRORS.DATA_INVALID });
+      result.errors.push({ error: ERRORS.DATA_INVALID });
     }
 
     // Set result status to Invalid if there's any error
@@ -85,7 +85,7 @@ function checkMarkdown(markdown) {
   } catch (e) {
     // Catch exceptions when parsing the markdown
     result.status = STATUS.INVALID;
-    result.errors.push({ code: ERRORS.DATA_INVALID });
+    result.errors.push({ error: ERRORS.DATA_INVALID });
   }
 
   return result;
