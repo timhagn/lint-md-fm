@@ -25,6 +25,9 @@ inputs:
   fuzzy-search:
     description: "Should the existing projects be checked for duplicates with nearest neighbor (fuzzy) search"
     required: false
+  force-check:
+    description: "Check all files instead of only added ones."
+    required: false
 
 outputs:
   changed: # id of output

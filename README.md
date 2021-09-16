@@ -48,6 +48,7 @@ This action checks all added files of a push / PR to the
 | markdown-extensions | true         | ".md", ".mdx"                   | Multiple extensions of Markdown files to check for.                                                            |
 | image-extensions    | false        | ".svg", ".png", ".jpg", ".jpeg" | Multiple extensions of image files to check for.                                                               |
 | fuzzy-search        | false        | true                            | Should the existing projects be checked for duplicates with nearest neighbor (fuzzy) search.                   |
+| force-check         | false        | false                           | Check all files instead of only added ones.                                                                    |
 
 ## Outputs
 
@@ -95,6 +96,7 @@ Adapt this action to one we can use to check the
 
 Possible additions:
 
+- [x] add `force-check` option to check all files
 - [ ] get `CATEGORY_MAPPING` from solana-com (API call)
 
 Find [`gray-matter`](https://www.npmjs.com/package/gray-matter) already

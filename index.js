@@ -12,6 +12,7 @@ const { testFrontmatter } = require("./src/testFrontmatter");
 const { testDuplication } = require("./src/testDuplication");
 const { testLogo } = require("./src/testLogo");
 const { initReporter, reporterComment } = require("./src/reporter");
+const fs = require("fs");
 
 /**
  * Gets called for unchecked errors.
@@ -21,6 +22,23 @@ const { initReporter, reporterComment } = require("./src/reporter");
 const handleError = (error) => {
   console.error(error);
   core.setFailed(`Unhandled error: ${error}`);
+};
+
+/**
+ * Loop over all files and fill list.
+ *
+ * @param {[string]} directories
+ * @returns {[string]}
+ */
+const getAllFiles = (directories) => {
+  let list = [];
+  directories.forEach((directory) => {
+    const allFiles = fs.readdirSync(directory);
+    allFiles.forEach((filePath) => {
+      list.push(`${directory}/${filePath}`);
+    });
+  });
+  return list;
 };
 
 /**
@@ -49,17 +67,20 @@ const main = async () => {
   const isFuzzySearch = core.getInput("fuzzy-search");
   // Get the directories array from input. The first element is the projects markdown directory and the second one is the images one.
   const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
+  const forceCheck = core.getInput("force-check");
 
   // Create a octokit reporter.
   const reporter = initReporter(repoToken, debug);
 
   // Only continue if any relevant files have changed.
-  // TODO: do we need to check on pushes?
   if (
-    changedFiles.length &&
-    hasRelevantFilesInDirectories(changedFiles, directories)
+    forceCheck ||
+    (changedFiles.length &&
+      hasRelevantFilesInDirectories(changedFiles, directories))
   ) {
-    const changedFilesArray = changedFiles.split(",");
+    const changedFilesArray = forceCheck
+      ? getAllFiles(directories)
+      : changedFiles.split(",");
 
     // Get all the valid markdown extensions or fall back to defaults.
     const markdownExtensions =
