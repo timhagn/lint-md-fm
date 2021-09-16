@@ -27863,23 +27863,29 @@ const main = async () => {
       core.setFailed(JSON.stringify(logoResult));
     }
 
+    const combinedResult = {
+      ...mdExtensionResult,
+      ...imgExtensionResult,
+      ...markdownResult,
+      ...duplicationResult,
+      ...logoResult,
+    };
+
+    if (combinedResult.status === STATUS.valid) {
+      // Add success comment.
+      await reporterComment(repoToken, debug, combinedResult, {}, reporter);
+    }
+
     core.notice(
       `Result: ${JSON.stringify({
-        ...mdExtensionResult,
-        ...imgExtensionResult,
-        ...markdownResult,
-        ...duplicationResult,
-        ...logoResult,
+        ...combinedResult,
         changedFilesArray,
       })}`
     );
     core.setOutput(
       "changed",
       JSON.stringify({
-        mdExtensionResult,
-        imgExtensionResult,
-        markdownResult,
-        duplicationResult,
+        ...combinedResult,
         logoResult,
       })
     );
