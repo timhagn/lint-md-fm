@@ -27871,7 +27871,7 @@ const main = async () => {
       ...logoResult,
     };
 
-    if (combinedResult.status === STATUS.valid) {
+    if (combinedResult.status === STATUS.VALID) {
       // Add success comment.
       await reporterComment(repoToken, debug, combinedResult, {}, reporter);
     }
