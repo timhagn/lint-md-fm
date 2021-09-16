@@ -48,10 +48,22 @@ The following files created duplication errors:
 **${INVALID_FILES}**
 `;
 
+const dataInvalid = ({ INVALID_FILES }) => `
+## ⚠️ Markdown data Invalid!
+
+**The content of one or more of your committed Markdown files is invalid!**
+
+Check if you correctly closed all strings and suchlike!
+
+The following files had invalid data:  
+**${INVALID_FILES}**
+`;
+
 const MARKDOWN_CONTENTS = {
   NO_FILES_CHANGED: noFilesChanged,
   EXTENSION_IS_INVALID: extensionIsInvalid,
   PROJECT_ALREADY_EXIST: projectAlreadyExists,
+  DATA_INVALID: dataInvalid,
 };
 
 module.exports = { MARKDOWN_CONTENTS };
@@ -26258,48 +26270,48 @@ function checkMarkdown(markdown) {
         if (invalidCategories.length > 0) {
           // include invalid categories in the error.
           result.errors.push({
-            code: ERRORS.CATEGORY_INVALID,
+            error: ERRORS.CATEGORY_INVALID,
             values: invalidCategories,
           });
         }
       } else {
-        result.errors.push({ code: ERRORS.CATEGORY });
+        result.errors.push({ error: ERRORS.CATEGORY });
       }
 
       if (!parsed.data.slug) {
-        result.errors.push({ code: ERRORS.SLUG });
+        result.errors.push({ error: ERRORS.SLUG });
       }
 
       if (!parsed.data.date) {
-        result.errors.push({ code: ERRORS.DATE });
+        result.errors.push({ error: ERRORS.DATE });
       }
 
       if (!parsed.data.title) {
-        result.errors.push({ code: ERRORS.TITLE });
+        result.errors.push({ error: ERRORS.TITLE });
       }
 
       if (!parsed.data.logline) {
-        result.errors.push({ code: ERRORS.LOGLINE });
+        result.errors.push({ error: ERRORS.LOGLINE });
       }
 
       if (!parsed.data.cta) {
-        result.errors.push({ code: ERRORS.CTA });
+        result.errors.push({ error: ERRORS.CTA });
       }
 
       if (!parsed.data.logo) {
-        result.errors.push({ code: ERRORS.LOGO });
+        result.errors.push({ error: ERRORS.LOGO });
       } else {
         // Logo path should not include white space.
         if (parsed.data.logo.includes(" ")) {
-          result.errors.push({ code: ERRORS.LOGO_INVALID });
+          result.errors.push({ error: ERRORS.LOGO_INVALID });
         }
       }
 
       if (!parsed.data.status) {
-        result.errors.push({ code: ERRORS.STATUS });
+        result.errors.push({ error: ERRORS.STATUS });
       }
     } else {
-      result.errors.push({ code: ERRORS.DATA_INVALID });
+      result.errors.push({ error: ERRORS.DATA_INVALID });
     }
 
     // Set result status to Invalid if there's any error
@@ -26309,7 +26321,7 @@ function checkMarkdown(markdown) {
   } catch (e) {
     // Catch exceptions when parsing the markdown
     result.status = STATUS.INVALID;
-    result.errors.push({ code: ERRORS.DATA_INVALID });
+    result.errors.push({ error: ERRORS.DATA_INVALID });
   }
 
   return result;
@@ -26351,6 +26363,12 @@ const { ERRORS } = __nccwpck_require__(4906);
 //   PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST", // Projects with the same slug exist already.
 // };
 
+/**
+ * Get the first error message from results to switch.
+ *
+ * @param results
+ * @returns {string|*}
+ */
 const getCurrentError = (results) => {
   if (results.errors && results.errors.length) {
     return results.errors[0].error;
@@ -26358,19 +26376,33 @@ const getCurrentError = (results) => {
   return "";
 };
 
-const getInvalidExtensionFiles = (results) => {
+/**
+ * Returns all invalid files combined.
+ *
+ * @param results
+ * @returns {string|*}
+ */
+const getInvalidFiles = (results) => {
   if (results.errors) {
     return results.errors.map(({ file }) => file).join("   ");
   }
   return "";
 };
 
+/**
+ * Returns a list of duplicate files.
+ *
+ * @param results
+ * @returns {string|*}
+ */
 const getInvalidDuplicateFiles = (results) => {
   if (results.errors) {
     return results.errors
       .reduce((accumulatedErrors, { error, file, duplicates }) => {
         if (error === ERRORS.PROJECT_DUPLICATION) {
-          const duplicationErrorMessage = `${file} had the following duplicates ${duplicates}`;
+          const duplicationErrorMessage = `**${file}** had the following duplicates **${duplicates.join(
+            ", "
+          )}**`;
           accumulatedErrors.push(duplicationErrorMessage);
         }
         return accumulatedErrors;
@@ -26380,16 +26412,23 @@ const getInvalidDuplicateFiles = (results) => {
   return "";
 };
 
+/**
+ * Parses the resulting errors and generates comments accordingly.
+ *
+ * @param results
+ * @param replacements
+ * @returns {string|*}
+ */
 const createMessageFromResults = (results, replacements = {}) => {
   const currentError = getCurrentError(results);
   switch (currentError) {
     case ERRORS.NO_FILES_CHANGED:
       return MARKDOWN_CONTENTS[currentError]();
     case ERRORS.EXTENSION_INVALID:
-      const fileReplacements = getInvalidExtensionFiles(results);
+      const invalidExtensionfileReplacements = getInvalidFiles(results);
       const allExtensionReplacements = {
         ...replacements,
-        INVALID_FILES: fileReplacements,
+        INVALID_FILES: invalidExtensionfileReplacements,
       };
       return MARKDOWN_CONTENTS[currentError](allExtensionReplacements);
     case ERRORS.PROJECT_DUPLICATION:
@@ -26397,6 +26436,11 @@ const createMessageFromResults = (results, replacements = {}) => {
         INVALID_FILES: getInvalidDuplicateFiles(results),
       };
       return MARKDOWN_CONTENTS[currentError](allDuplicateReplacements);
+    case ERRORS.DATA_INVALID:
+      const allInvalidFilesReplacements = {
+        INVALID_FILES: getInvalidFiles(results),
+      };
+      return MARKDOWN_CONTENTS[currentError](allInvalidFilesReplacements);
     default:
       return "";
   }
@@ -26682,7 +26726,7 @@ const checkDuplication = (slugList, slug, filePath, isFuzzySearch) => {
   if (isFuzzySearch) {
     const fuse = new Fuse(slugList, {
       includeScore: true,
-      threshold: 0.2,
+      threshold: 0.1,
       keys: ["slug"],
     });
     const duplications = fuse.search(slug); // Grab all matches using fuse.js
@@ -27321,6 +27365,7 @@ const main = async () => {
   const reporter = initReporter(repoToken, debug);
 
   // Only continue if any relevant files have changed.
+  // TODO: do we need to check on pushes?
   if (
     changedFiles.length &&
     hasRelevantFilesInDirectories(changedFiles, directories)
