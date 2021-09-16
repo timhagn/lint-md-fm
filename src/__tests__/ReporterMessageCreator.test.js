@@ -100,3 +100,116 @@ The following files had invalid logo tags:
 "
 `);
 });
+
+test("check if logo non existent", () => {
+  const nonExistentLogoFile = {
+    errors: [
+      {
+        error: "LOGO_FILE_NOT_EXIST",
+        file: "testFiles/logo_file.md",
+        logo: "testFiles/logo_file.svg",
+      },
+    ],
+    status: "INVALID",
+  };
+  const resultingMessage = createMessageFromResults(nonExistentLogoFile);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Project has invalid Logo!
+
+**One or more of your committed Projects have invalid logo or missing logos!**
+
+Be sure to add them to you commit, in the correct aspect ratio &
+the correct file type / extension!
+
+The following files had invalid or missing logos:  
+**testFiles/logo_file.md** had a missing logo file: **testFiles/logo_file.svg**
+"
+`);
+});
+
+test("check if logo has invalid size", () => {
+  const invalidLogoSize = {
+    errors: [
+      {
+        error: "INVALID_LOGO_SIZE",
+        file: "testFiles/logo_size.md",
+        height: 508,
+        logo: "testFiles/Museoftheday.svg",
+        width: 300,
+      },
+    ],
+    status: "INVALID",
+  };
+  const resultingMessage = createMessageFromResults(invalidLogoSize);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Project has invalid Logo!
+
+**One or more of your committed Projects have invalid logo or missing logos!**
+
+Be sure to add them to you commit, in the correct aspect ratio &
+the correct file type / extension!
+
+The following files had invalid or missing logos:  
+**testFiles/logo_size.md** had a logo file with a wrong ratio, **testFiles/Museoftheday.svg** - ratio 1.7
+"
+`);
+});
+
+test("check if logo has invalid format (no extension)", () => {
+  const invalidExtensionLogoFile = {
+    errors: [
+      {
+        error: "INVALID_LOGO_FORMAT",
+        ext: "",
+        file: "testFiles/logo_format_no_ext.md",
+        logo: "testFiles/apeshit",
+      },
+    ],
+    status: "INVALID",
+  };
+  const resultingMessage = createMessageFromResults(invalidExtensionLogoFile);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Project has invalid Logo!
+
+**One or more of your committed Projects have invalid logo or missing logos!**
+
+Be sure to add them to you commit, in the correct aspect ratio &
+the correct file type / extension!
+
+The following files had invalid or missing logos:  
+**testFiles/logo_format_no_ext.md** had a logo file without extension, **testFiles/apeshit**
+"
+`);
+});
+
+test("check if logo has invalid format (file type)", () => {
+  const invalidFileTypeLogoFile = {
+    errors: [
+      {
+        error: "INVALID_LOGO_FORMAT",
+        ext: "svg",
+        file: "testFiles/logo_format.md",
+        fileType: "png",
+        logo: "testFiles/apeshit.svg",
+      },
+    ],
+    status: "INVALID",
+  };
+  const resultingMessage = createMessageFromResults(invalidFileTypeLogoFile);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Project has invalid Logo!
+
+**One or more of your committed Projects have invalid logo or missing logos!**
+
+Be sure to add them to you commit, in the correct aspect ratio &
+the correct file type / extension!
+
+The following files had invalid or missing logos:  
+**testFiles/logo_format.md** had a logo file with a wrong extension (svg), **testFiles/apeshit.svg** is of type png
+"
+`);
+});

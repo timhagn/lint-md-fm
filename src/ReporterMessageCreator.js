@@ -1,5 +1,9 @@
 const { MARKDOWN_CONTENTS } = require("../msgMd");
-const { ERRORS, COMBINED_MISSING_TAG_ERRORS } = require("./constants");
+const {
+  ERRORS,
+  COMBINED_MISSING_TAG_ERRORS,
+  COMBINED_LOGO_ERRORS,
+} = require("./constants");
 
 // Error codes and strings for each possible error.
 // const ERRORS = {
@@ -153,6 +157,48 @@ const getInvalidCategoriesFilesString = (results) => {
 };
 
 /**
+ * Returns a string with a list of files with invalid categories.
+ *
+ * @param results
+ * @returns {string|*}
+ */
+const getLogoErrorsFilesString = (results) => {
+  if (results.errors) {
+    return results.errors
+      .reduce(
+        (
+          accumulatedErrors,
+          { error, file, logo, width, height, ext, fileType }
+        ) => {
+          if (error === ERRORS.LOGO_FILE) {
+            const logoExistenceErrorMessage = `**${file}** had a missing logo file: **${logo}**`;
+            accumulatedErrors.push(logoExistenceErrorMessage);
+          }
+          if (error === ERRORS.LOGO_SIZE) {
+            const logoSizeErrorMessage = `**${file}** had a logo file with a wrong ratio, **${logo}** - ratio ${(
+              height / width
+            ).toPrecision(2)}`;
+            accumulatedErrors.push(logoSizeErrorMessage);
+          }
+          if (error === ERRORS.LOGO_FORMAT) {
+            if (ext === "") {
+              const logoFormatExtErrorMessage = `**${file}** had a logo file without extension, **${logo}**`;
+              accumulatedErrors.push(logoFormatExtErrorMessage);
+            } else {
+              const logoFormatExtErrorMessage = `**${file}** had a logo file with a wrong extension (${ext}), **${logo}** is of type ${fileType}`;
+              accumulatedErrors.push(logoFormatExtErrorMessage);
+            }
+          }
+          return accumulatedErrors;
+        },
+        []
+      )
+      .join("   ");
+  }
+  return "";
+};
+
+/**
  * Parses the resulting errors and generates comments accordingly.
  *
  * @param results
@@ -200,6 +246,13 @@ const createMessageFromResults = (results, replacements = {}) => {
         INVALID_FILES: getInvalidLogoFilesString(results),
       };
       return MARKDOWN_CONTENTS[currentError](allInvalidLogoFilesReplacements);
+    case COMBINED_LOGO_ERRORS.includes(currentError):
+      const allLogoErrorsFilesReplacements = {
+        INVALID_FILES: getLogoErrorsFilesString(results),
+      };
+      return MARKDOWN_CONTENTS["COMBINED_LOGO_ERRORS"](
+        allLogoErrorsFilesReplacements
+      );
     default:
       return "";
   }

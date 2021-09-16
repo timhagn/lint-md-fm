@@ -149,6 +149,8 @@ const main = async () => {
     core.notice("Testing Logo Files...");
     const logoResult = testLogo(imageExtensions, mdExtensionResult.validFiles);
     if (logoResult.status !== STATUS.VALID) {
+      // Create an error comment for invalid logo files.
+      await reporterComment(repoToken, debug, logoResult, {}, reporter);
       core.error(JSON.stringify(logoResult));
       core.setFailed(JSON.stringify(logoResult));
     }

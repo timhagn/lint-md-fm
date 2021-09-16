@@ -59,6 +59,7 @@ const checkLogoFile = (extensions, logoPath) => {
       } else {
         result.error = ERRORS.LOGO_FORMAT;
         result.ext = ext;
+        result.fileType = meta.type || meta.mime;
       }
     }
   }

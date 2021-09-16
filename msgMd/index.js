@@ -88,6 +88,18 @@ The following files had invalid logo tags:
 ${INVALID_FILES}
 `;
 
+const logoErrors = ({ INVALID_FILES }) => `
+## ⚠️ Project has invalid Logo!
+
+**One or more of your committed Projects have invalid logo or missing logos!**
+
+Be sure to add them to you commit, in the correct aspect ratio &
+the correct file type / extension!
+
+The following files had invalid or missing logos:  
+${INVALID_FILES}
+`;
+
 const MARKDOWN_CONTENTS = {
   [ERRORS.NO_FILES_CHANGED]: noFilesChanged,
   [ERRORS.EXTENSION_INVALID]: extensionIsInvalid,
@@ -96,6 +108,7 @@ const MARKDOWN_CONTENTS = {
   COMBINED_MISSING_TAGS: missingTags,
   [ERRORS.CATEGORY_INVALID]: categoryInvalid,
   [ERRORS.LOGO_INVALID]: logoInvalid,
+  COMBINED_LOGO_ERRORS: logoErrors,
 };
 
 module.exports = { MARKDOWN_CONTENTS };

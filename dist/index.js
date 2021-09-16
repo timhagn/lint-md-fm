@@ -94,6 +94,18 @@ The following files had invalid logo tags:
 ${INVALID_FILES}
 `;
 
+const logoErrors = ({ INVALID_FILES }) => `
+## ⚠️ Project has invalid Logo!
+
+**One or more of your committed Projects have invalid logo or missing logos!**
+
+Be sure to add them to you commit, in the correct aspect ratio &
+the correct file type / extension!
+
+The following files had invalid or missing logos:  
+${INVALID_FILES}
+`;
+
 const MARKDOWN_CONTENTS = {
   [ERRORS.NO_FILES_CHANGED]: noFilesChanged,
   [ERRORS.EXTENSION_INVALID]: extensionIsInvalid,
@@ -102,6 +114,7 @@ const MARKDOWN_CONTENTS = {
   COMBINED_MISSING_TAGS: missingTags,
   [ERRORS.CATEGORY_INVALID]: categoryInvalid,
   [ERRORS.LOGO_INVALID]: logoInvalid,
+  COMBINED_LOGO_ERRORS: logoErrors,
 };
 
 module.exports = { MARKDOWN_CONTENTS };
@@ -26536,7 +26549,11 @@ exports.checkMarkdown = checkMarkdown;
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const { MARKDOWN_CONTENTS } = __nccwpck_require__(5208);
-const { ERRORS, COMBINED_MISSING_TAG_ERRORS } = __nccwpck_require__(4906);
+const {
+  ERRORS,
+  COMBINED_MISSING_TAG_ERRORS,
+  COMBINED_LOGO_ERRORS,
+} = __nccwpck_require__(4906);
 
 // Error codes and strings for each possible error.
 // const ERRORS = {
@@ -26545,7 +26562,7 @@ const { ERRORS, COMBINED_MISSING_TAG_ERRORS } = __nccwpck_require__(4906);
 //#   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
 
 //#   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
-//   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
+//#   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
 
 //#   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
 //#   SLUG: "SLUG_NOT_EXIST", // "slug" tag does not exist in the markdown.
@@ -26690,6 +26707,48 @@ const getInvalidCategoriesFilesString = (results) => {
 };
 
 /**
+ * Returns a string with a list of files with invalid categories.
+ *
+ * @param results
+ * @returns {string|*}
+ */
+const getLogoErrorsFilesString = (results) => {
+  if (results.errors) {
+    return results.errors
+      .reduce(
+        (
+          accumulatedErrors,
+          { error, file, logo, width, height, ext, fileType }
+        ) => {
+          if (error === ERRORS.LOGO_FILE) {
+            const logoExistenceErrorMessage = `**${file}** had a missing logo file: **${logo}**`;
+            accumulatedErrors.push(logoExistenceErrorMessage);
+          }
+          if (error === ERRORS.LOGO_SIZE) {
+            const logoSizeErrorMessage = `**${file}** had a logo file with a wrong ratio, **${logo}** - ratio ${(
+              height / width
+            ).toPrecision(2)}`;
+            accumulatedErrors.push(logoSizeErrorMessage);
+          }
+          if (error === ERRORS.LOGO_FORMAT) {
+            if (ext === "") {
+              const logoFormatExtErrorMessage = `**${file}** had a logo file without extension, **${logo}**`;
+              accumulatedErrors.push(logoFormatExtErrorMessage);
+            } else {
+              const logoFormatExtErrorMessage = `**${file}** had a logo file with a wrong extension (${ext}), **${logo}** is of type ${fileType}`;
+              accumulatedErrors.push(logoFormatExtErrorMessage);
+            }
+          }
+          return accumulatedErrors;
+        },
+        []
+      )
+      .join("   ");
+  }
+  return "";
+};
+
+/**
  * Parses the resulting errors and generates comments accordingly.
  *
  * @param results
@@ -26737,6 +26796,13 @@ const createMessageFromResults = (results, replacements = {}) => {
         INVALID_FILES: getInvalidLogoFilesString(results),
       };
       return MARKDOWN_CONTENTS[currentError](allInvalidLogoFilesReplacements);
+    case COMBINED_LOGO_ERRORS.includes(currentError):
+      const allLogoErrorsFilesReplacements = {
+        INVALID_FILES: getLogoErrorsFilesString(results),
+      };
+      return MARKDOWN_CONTENTS["COMBINED_LOGO_ERRORS"](
+        allLogoErrorsFilesReplacements
+      );
     default:
       return "";
   }
@@ -26791,6 +26857,12 @@ const COMBINED_MISSING_TAG_ERRORS = {
   [ERRORS.STATUS]: "status",
 };
 
+const COMBINED_LOGO_ERRORS = [
+  ERRORS.LOGO_FILE,
+  ERRORS.LOGO_FORMAT,
+  ERRORS.LOGO_SIZE,
+];
+
 // Valid project categories. Used for the "category" tag in the markdown file.
 const CATEGORIES = [
   "amm",
@@ -26821,6 +26893,7 @@ module.exports = {
   STATUS,
   ERRORS,
   COMBINED_MISSING_TAG_ERRORS,
+  COMBINED_LOGO_ERRORS,
   CATEGORIES,
 };
 
@@ -27275,6 +27348,7 @@ const checkLogoFile = (extensions, logoPath) => {
     if (extensions.indexOf(extension) < 0) {
       // Logo file extension is not valid.
       result.error = ERRORS.LOGO_FORMAT;
+      result.ext = "";
     } else {
       const data = fs.readFileSync(logoPath);
       const meta = probe.sync(data); // Grab meta information of the logo. See https://www.npmjs.com/package/probe-image-size
@@ -27285,9 +27359,13 @@ const checkLogoFile = (extensions, logoPath) => {
         // Check the logo image ratio
         if (ratio < 0.9 || ratio > 1.1) {
           result.error = ERRORS.LOGO_SIZE;
+          result.width = meta.width;
+          result.height = meta.height;
         }
       } else {
         result.error = ERRORS.LOGO_FORMAT;
+        result.ext = ext;
+        result.fileType = meta.type || meta.mime;
       }
     }
   }
@@ -27311,7 +27389,11 @@ const testLogo = (extensions, changedFiles) => {
     const logoPath = getLogoPath(filePath); // Grab logo file path.
     const logoCheckResult = checkLogoFile(extensions, logoPath); // Grab the logo validation result.
     if (logoCheckResult.error) {
-      result.errors.push({ error: logoCheckResult.error, file: logoPath });
+      result.errors.push({
+        ...logoCheckResult,
+        file: filePath,
+        logo: logoPath,
+      });
     }
   });
 
@@ -27766,6 +27848,8 @@ const main = async () => {
     core.notice("Testing Logo Files...");
     const logoResult = testLogo(imageExtensions, mdExtensionResult.validFiles);
     if (logoResult.status !== STATUS.VALID) {
+      // Create an error comment for invalid logo files.
+      await reporterComment(repoToken, debug, logoResult, {}, reporter);
       core.error(JSON.stringify(logoResult));
       core.setFailed(JSON.stringify(logoResult));
     }

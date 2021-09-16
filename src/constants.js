@@ -39,6 +39,12 @@ const COMBINED_MISSING_TAG_ERRORS = {
   [ERRORS.STATUS]: "status",
 };
 
+const COMBINED_LOGO_ERRORS = [
+  ERRORS.LOGO_FILE,
+  ERRORS.LOGO_FORMAT,
+  ERRORS.LOGO_SIZE,
+];
+
 // Valid project categories. Used for the "category" tag in the markdown file.
 const CATEGORIES = [
   "amm",
@@ -69,5 +75,6 @@ module.exports = {
   STATUS,
   ERRORS,
   COMBINED_MISSING_TAG_ERRORS,
+  COMBINED_LOGO_ERRORS,
   CATEGORIES,
 };

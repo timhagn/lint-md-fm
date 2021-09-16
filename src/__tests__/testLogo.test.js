@@ -10,7 +10,7 @@ Object {
     Object {
       "error": "LOGO_FILE_NOT_EXIST",
       "file": "testFiles/logo_file.md",
-      "logo": "testFiles/apeshit.svg",
+      "logo": "testFiles/logo_file.svg",
     },
   ],
   "status": "INVALID",
@@ -37,4 +37,39 @@ Object {
 `);
 });
 
-// TODO: write test for LOGO_FORMAT (without ext & wrong one)
+test("check logo file for invalid format (no extension)", () => {
+  const changedFiles = ["testFiles/logo_format_no_ext.md"];
+  const logoErrors = testLogo(DEFAULT_IMAGE_EXTENSIONS, changedFiles);
+  expect(logoErrors).toMatchInlineSnapshot(`
+Object {
+  "errors": Array [
+    Object {
+      "error": "INVALID_LOGO_FORMAT",
+      "ext": "",
+      "file": "testFiles/logo_format_no_ext.md",
+      "logo": "testFiles/apeshit",
+    },
+  ],
+  "status": "INVALID",
+}
+`);
+});
+
+test("check logo file for invalid format (svg instead of png)", () => {
+  const changedFiles = ["testFiles/logo_format.md"];
+  const logoErrors = testLogo(DEFAULT_IMAGE_EXTENSIONS, changedFiles);
+  expect(logoErrors).toMatchInlineSnapshot(`
+Object {
+  "errors": Array [
+    Object {
+      "error": "INVALID_LOGO_FORMAT",
+      "ext": "svg",
+      "file": "testFiles/logo_format.md",
+      "fileType": "png",
+      "logo": "testFiles/apeshit.svg",
+    },
+  ],
+  "status": "INVALID",
+}
+`);
+});
