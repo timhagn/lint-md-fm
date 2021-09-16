@@ -29,7 +29,7 @@ const testFrontmatter = (markdownExtensions, changedFiles, directory) => {
         const markdownResult = checkMarkdown(markdownData); // Lint the markdown using the Linter.
         if (markdownResult.errors.length > 0) {
           // Grab markdown syntax errors
-          result.errors.push({ errors: markdownResult.errors, file: filePath });
+          result.errors.push({ ...markdownResult.errors, file: filePath });
         }
       }
     }
