@@ -1,13 +1,14 @@
 const { MARKDOWN_CONTENTS } = require("../msgMd");
-const { ERRORS } = require("./constants");
+const { ERRORS, COMBINED_MISSING_TAG_ERRORS } = require("./constants");
 
 // Error codes and strings for each possible error.
 // const ERRORS = {
-//   NO_FILES_CHANGED: "NO_FILES_CHANGED", // No relevant files have been changed in the commit.
-//   EXTENSION_INVALID: "EXTENSION_IS_INVALID", // Markdown or logo extension is not valid.
-//   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
+//#   NO_FILES_CHANGED: "NO_FILES_CHANGED", // No relevant files have been changed in the commit.
+//#   EXTENSION_INVALID: "EXTENSION_IS_INVALID", // Markdown or logo extension is not valid.
+//#   DATA_INVALID: "DATA_INVALID", // Markdown is not in valid format.
 
 //   CATEGORY_INVALID: "CATEGORY_INVALID", // Project category is invalid.
+//   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
 
 //   CATEGORY: "CATEGORY_NOT_EXIST", // "category" tag does not exist in the markdown.
 //   SLUG: "SLUG_NOT_EXIST", // "slug" tag does not exist in the markdown.
@@ -16,14 +17,13 @@ const { ERRORS } = require("./constants");
 //   LOGLINE: "LOGLINE_NOT_EXIST", // "logline" tag does not exist in the markdown.
 //   CTA: "CTA_NOT_EXIST", // "cta" tag does not exist in the markdown.
 //   LOGO: "LOGO_NOT_EXIST", // "logo" tag does not exist in the markdown.
-//   LOGO_INVALID: "INVALID_LOGO_NAME", // logo value is invalid. e.g. contains white space.
 //   STATUS: "STATUS_NOT_EXIST", // "state" tag does not exist in the markdown.
 
 //   LOGO_FILE: "LOGO_FILE_NOT_EXIST", // logo file does not exist in the img directory.
 //   LOGO_FORMAT: "INVALID_LOGO_FORMAT", // logo file format does not match the extension.
 //   LOGO_SIZE: "INVALID_LOGO_SIZE", // logo image size is not in correct ratio.
 
-//   PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST", // Projects with the same slug exist already.
+//#   PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST", // Projects with the same slug exist already.
 // };
 
 /**
@@ -45,7 +45,7 @@ const getCurrentError = (results) => {
  * @param results
  * @returns {string|*}
  */
-const getInvalidFiles = (results) => {
+const getInvalidFilesString = (results) => {
   if (results.errors) {
     return results.errors.map(({ file }) => file).join("   ");
   }
@@ -53,12 +53,12 @@ const getInvalidFiles = (results) => {
 };
 
 /**
- * Returns a list of duplicate files.
+ * Returns a string with a list of duplicate files.
  *
  * @param results
  * @returns {string|*}
  */
-const getInvalidDuplicateFiles = (results) => {
+const getInvalidDuplicateFilesString = (results) => {
   if (results.errors) {
     return results.errors
       .reduce((accumulatedErrors, { error, file, duplicates }) => {
@@ -76,6 +76,39 @@ const getInvalidDuplicateFiles = (results) => {
 };
 
 /**
+ * Returns a string with a list of files with missing tags.
+ *
+ * @param results
+ * @returns {string|*}
+ */
+const getMissingTagFilesString = (results) => {
+  if (results.errors) {
+    const combinedErrorsByFile = results.errors.reduce(
+      (accumulatedErrors, { error, file }) => {
+        if (Object.keys(COMBINED_MISSING_TAG_ERRORS).includes(error)) {
+          if (!accumulatedErrors[file]) {
+            accumulatedErrors[file] = [COMBINED_MISSING_TAG_ERRORS[error]];
+          } else {
+            accumulatedErrors[file].push(COMBINED_MISSING_TAG_ERRORS[error]);
+          }
+        }
+        return accumulatedErrors;
+      },
+      {}
+    );
+    return Object.keys(combinedErrorsByFile)
+      .map(
+        (file) =>
+          `**${file}** misses the following tags: **${combinedErrorsByFile[
+            file
+          ].join(", ")}**`
+      )
+      .join("   ");
+  }
+  return "";
+};
+
+/**
  * Parses the resulting errors and generates comments accordingly.
  *
  * @param results
@@ -84,26 +117,33 @@ const getInvalidDuplicateFiles = (results) => {
  */
 const createMessageFromResults = (results, replacements = {}) => {
   const currentError = getCurrentError(results);
-  switch (currentError) {
-    case ERRORS.NO_FILES_CHANGED:
+  switch (true) {
+    case currentError === ERRORS.NO_FILES_CHANGED:
       return MARKDOWN_CONTENTS[currentError]();
-    case ERRORS.EXTENSION_INVALID:
-      const invalidExtensionfileReplacements = getInvalidFiles(results);
+    case currentError === ERRORS.EXTENSION_INVALID:
+      const invalidExtensionfileReplacements = getInvalidFilesString(results);
       const allExtensionReplacements = {
         ...replacements,
         INVALID_FILES: invalidExtensionfileReplacements,
       };
       return MARKDOWN_CONTENTS[currentError](allExtensionReplacements);
-    case ERRORS.PROJECT_DUPLICATION:
+    case currentError === ERRORS.PROJECT_DUPLICATION:
       const allDuplicateReplacements = {
-        INVALID_FILES: getInvalidDuplicateFiles(results),
+        INVALID_FILES: getInvalidDuplicateFilesString(results),
       };
       return MARKDOWN_CONTENTS[currentError](allDuplicateReplacements);
-    case ERRORS.DATA_INVALID:
+    case currentError === ERRORS.DATA_INVALID:
       const allInvalidFilesReplacements = {
-        INVALID_FILES: getInvalidFiles(results),
+        INVALID_FILES: getInvalidFilesString(results),
       };
       return MARKDOWN_CONTENTS[currentError](allInvalidFilesReplacements);
+    case Object.keys(COMBINED_MISSING_TAG_ERRORS).includes(currentError):
+      const allMissingTagFilesReplacements = {
+        INVALID_FILES: getMissingTagFilesString(results),
+      };
+      return MARKDOWN_CONTENTS["COMBINED_MISSING_TAGS"](
+        allMissingTagFilesReplacements
+      );
     default:
       return "";
   }

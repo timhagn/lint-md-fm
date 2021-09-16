@@ -35,6 +35,7 @@ const hasRelevantFilesInDirectories = (changedFiles, directories) =>
   changedFiles
     .split(",")
     .some((file) => directories.some((directory) => file.includes(directory)));
+
 /**
  * Main action function.
  *

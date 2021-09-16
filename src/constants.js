@@ -28,6 +28,17 @@ const ERRORS = {
   PROJECT_DUPLICATION: "PROJECT_ALREADY_EXIST", // Projects with the same slug exist already.
 };
 
+const COMBINED_MISSING_TAG_ERRORS = {
+  [ERRORS.CATEGORY]: "category",
+  [ERRORS.SLUG]: "slug",
+  [ERRORS.DATE]: "date",
+  [ERRORS.TITLE]: "title",
+  [ERRORS.LOGLINE]: "logline",
+  [ERRORS.CTA]: "cta",
+  [ERRORS.LOGO]: "logo",
+  [ERRORS.STATUS]: "status",
+};
+
 // Valid project categories. Used for the "category" tag in the markdown file.
 const CATEGORIES = [
   "amm",
@@ -57,5 +68,6 @@ module.exports = {
   DEFAULT_IMAGE_EXTENSIONS,
   STATUS,
   ERRORS,
+  COMBINED_MISSING_TAG_ERRORS,
   CATEGORIES,
 };

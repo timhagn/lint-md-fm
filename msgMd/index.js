@@ -36,10 +36,10 @@ to your commit before pushing it!
 const projectAlreadyExists = ({ INVALID_FILES }) => `
 ## ⚠️ Duplicate Project!
 
-**The project you are trying to add does already exist!**
+**The project(s) you are trying to add does already exist(s)!**
 
 The following files created duplication errors:  
-**${INVALID_FILES}**
+${INVALID_FILES}
 `;
 
 const dataInvalid = ({ INVALID_FILES }) => `
@@ -53,11 +53,23 @@ The following files had invalid data:
 **${INVALID_FILES}**
 `;
 
+const missingTags = ({ INVALID_FILES }) => `
+## ⚠️ Markdown has missing Tags!
+
+**One or more of your committed Markdown files have missing tags!**
+
+Be sure to check for & add them!
+
+The following files had missing tags:  
+${INVALID_FILES}
+`;
+
 const MARKDOWN_CONTENTS = {
   NO_FILES_CHANGED: noFilesChanged,
   EXTENSION_IS_INVALID: extensionIsInvalid,
   PROJECT_ALREADY_EXIST: projectAlreadyExists,
   DATA_INVALID: dataInvalid,
+  COMBINED_MISSING_TAGS: missingTags,
 };
 
 module.exports = { MARKDOWN_CONTENTS };
