@@ -93,5 +93,9 @@ Adapt this action to one we can use to check the
 - [x] cleaned up reporting / logging
 - [x] adapt this README file to the functionality of the final action
 
+Possible additions:
+
+- [ ] get `CATEGORY_MAPPING` from solana-com (API call)
+
 Find [`gray-matter`](https://www.npmjs.com/package/gray-matter) already
 installed to work with Markdown & Frontmatter.
