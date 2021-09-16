@@ -27435,6 +27435,8 @@ const main = async () => {
       directories[0]
     );
     if (markdownResult.status !== STATUS.VALID) {
+      // Create an error comment for invalid files or their Markdown content.
+      await reporterComment(repoToken, debug, markdownResult, {}, reporter);
       core.error(JSON.stringify(markdownResult));
       core.setFailed(JSON.stringify(markdownResult));
     }
@@ -27449,13 +27451,7 @@ const main = async () => {
     );
     if (duplicationResult.status !== STATUS.VALID) {
       // Create an error comment for duplicate files.
-      await reporterComment(
-        repoToken,
-        debug,
-        duplicationResult,
-        {},
-        reporter
-      );
+      await reporterComment(repoToken, debug, duplicationResult, {}, reporter);
       core.error(JSON.stringify(duplicationResult));
       core.setFailed(JSON.stringify(duplicationResult));
     }
