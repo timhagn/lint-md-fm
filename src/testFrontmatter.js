@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 
-const { STATUS, ERRORS } = require("./constants");
+const { STATUS } = require("./constants");
 const { checkMarkdown } = require("./MarkdownLinter");
 
 /**
@@ -31,7 +31,7 @@ const testFrontmatter = (markdownExtensions, changedFiles, directory) => {
           // Grab markdown syntax errors & process them to the common format.
           markdownResult.errors.forEach((error) =>
             result.errors.push({
-              error,
+              ...error,
               file: filePath,
             })
           );

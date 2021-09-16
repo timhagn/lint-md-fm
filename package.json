@@ -17,11 +17,13 @@
     "probe-image-size": "^7.2.1"
   },
   "devDependencies": {
+    "jest": "^27.2.0",
     "prettier": "^2.3.2"
   },
   "scripts": {
     "build": "ncc build index.js --license LICENSE",
     "format": "prettier --check \"**/*.{js,jsx,json,md,scss}\"",
-    "format:fix": "prettier --write \"**/*.{js,jsx,json,md,scss}\""
+    "format:fix": "prettier --write \"**/*.{js,jsx,json,md,scss}\"",
+    "test": "jest"
   }
 }
