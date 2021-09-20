@@ -184,7 +184,16 @@ const main = async () => {
       ...logoResult,
     };
 
-    if (combinedResult.status === STATUS.VALID) {
+    const combinedStatus =
+      mdExtensionResult.status &&
+      imgExtensionResult.status &&
+      markdownResult.status &&
+      duplicationResult.status &&
+      logoResult.status;
+
+    combinedResult.status = combinedStatus;
+
+    if (combinedStatus === STATUS.VALID) {
       // Add success comment.
       await reporterComment(repoToken, debug, combinedResult, {}, reporter);
     }
