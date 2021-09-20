@@ -34,7 +34,7 @@ More info on creating JavaScript GitHub actions may be found on
 
 ## Markdown Frontmatter & project files linter
 
-This action checks all added files of a push / PR to the 
+This action checks all added files of a push / PR to the
 [solana-labs/ecosystem](https://github.com/solana-labs/ecosystem) repo.
 
 ## Inputs

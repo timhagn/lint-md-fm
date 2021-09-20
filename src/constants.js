@@ -54,18 +54,19 @@ const CATEGORIES = [
   "dex",
   "exchange",
   "explorer",
-  "fund",
+  "game",
   "governance",
   "infra",
-  "investmentfund",
-  "metaplex",
-  "nft",
   "oracle",
   "sdk",
   "spl",
   "stablecoin",
   "tools",
+  "metaplex",
+  "nft",
   "wallet",
+  "fund",
+  "investmentfund",
 ];
 
 module.exports = {

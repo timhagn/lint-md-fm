@@ -26856,18 +26856,19 @@ const CATEGORIES = [
   "dex",
   "exchange",
   "explorer",
-  "fund",
+  "game",
   "governance",
   "infra",
-  "investmentfund",
-  "metaplex",
-  "nft",
   "oracle",
   "sdk",
   "spl",
   "stablecoin",
   "tools",
+  "metaplex",
+  "nft",
   "wallet",
+  "fund",
+  "investmentfund",
 ];
 
 module.exports = {
@@ -27867,7 +27868,16 @@ const main = async () => {
       ...logoResult,
     };
 
-    if (combinedResult.status === STATUS.VALID) {
+    const combinedStatus =
+      mdExtensionResult.status &&
+      imgExtensionResult.status &&
+      markdownResult.status &&
+      duplicationResult.status &&
+      logoResult.status;
+
+    combinedResult.status = combinedStatus;
+
+    if (combinedStatus === STATUS.VALID) {
       // Add success comment.
       await reporterComment(repoToken, debug, combinedResult, {}, reporter);
     }
