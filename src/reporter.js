@@ -127,22 +127,27 @@ const reporterComment = async (
 
   // Create message from errors or return success message.
   const message = createMessageFromResults(results, extensionReplacements);
-
-  // Check to see if comment is existing & post it if not.
-  const { data: comments } = await octokit.rest.issues.listComments({
-    owner,
-    repo,
-    issue_number: issueNumber,
-  });
-  if (!isMessagePresent(message, comments)) {
-    core.notice(`Commenting results...`);
-    const result = await octokit.rest.issues.createComment({
+  if (issueNumber) {
+    // Check to see if comment is existing & post it if not.
+    const { data: comments } = await octokit.rest.issues.listComments({
       owner,
       repo,
       issue_number: issueNumber,
-      body: message,
     });
-    core.notice(result);
+    if (!isMessagePresent(message, comments)) {
+      core.notice(`Commenting results...`);
+      const result = await octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        body: message,
+      });
+      core.notice(result);
+    }
+  } else {
+    core.notice(
+      `No issue number found (PR?), but wanted to create the following comment: ${message}`
+    );
   }
 };
 
