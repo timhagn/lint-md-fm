@@ -1,5 +1,50 @@
 const { createMessageFromResults } = require("../ReporterMessageCreator");
 
+test("check for AOK", () => {
+  const allOK = {
+    status: "VALID",
+    validFiles: ["img/sodi.png"],
+    errors: [],
+    changedFilesArray: ["img/sodi.png", "projects/sodi.md"],
+  };
+  const resultingMessage = createMessageFromResults(allOK);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ✅ Project files checked and OK.
+
+Please give the community and us some time to check it out before it gets merged!
+
+Thanks for adding it!
+"
+`);
+});
+
+test("check Frontmatter from file for invalid Frontmatter data", () => {
+  const missingTagsErrors = {
+    errors: [
+      {
+        error: "DATA_INVALID",
+        file: "testFiles/invalid_frontmatter_data.md",
+      },
+    ],
+    status: "INVALID",
+  };
+  const resultingMessage = createMessageFromResults(missingTagsErrors);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Markdown data Invalid!
+
+**The content of one or more of your committed Markdown files is invalid!**
+
+Check if you correctly closed all strings and suchlike, as well as having
+encapsulated the Frontmatter data by \`---\` before and after!
+
+The following files had invalid data:  
+**testFiles/invalid_frontmatter_data.md**
+"
+`);
+});
+
 test("check Frontmatter from file for invalid data", () => {
   const missingTagsErrors = {
     errors: [
@@ -210,6 +255,49 @@ the correct file type / extension!
 
 The following files had invalid or missing logos:  
 **testFiles/logo_format.md** had a logo file with a wrong extension (svg), **testFiles/apeshit.svg** is of type png
+"
+`);
+});
+
+test("check for multiple errors", () => {
+  const invalidCategories = {
+    errors: [
+      {
+        error: "CATEGORY_INVALID",
+        file: "testFiles/category_invalid.md",
+        values: ["nfts", "test"],
+      },
+      {
+        error: "INVALID_LOGO_FORMAT",
+        ext: "",
+        file: "testFiles/logo_format_no_ext.md",
+        logo: "testFiles/apeshit",
+      },
+    ],
+    status: "INVALID",
+  };
+  const resultingMessage = createMessageFromResults(invalidCategories);
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Markdown has invalid Categories!
+
+**One or more of your committed Markdown files have invalid categories!**
+
+Be sure to check for & fix them!
+
+The following files had invalid categories:  
+**testFiles/category_invalid.md** had the following invalid categories **nfts, test**
+
+
+## ⚠️ Project has invalid Logo!
+
+**One or more of your committed Projects have invalid logo or missing logos!**
+
+Be sure to add them to you commit, in the correct aspect ratio &
+the correct file type / extension!
+
+The following files had invalid or missing logos:  
+**testFiles/logo_format_no_ext.md** had a logo file without extension, **testFiles/apeshit**
 "
 `);
 });

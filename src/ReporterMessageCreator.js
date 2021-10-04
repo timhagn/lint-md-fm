@@ -6,13 +6,21 @@ const {
 } = require("./constants");
 
 /**
+ * Checks if there are any errors in result set.
+ *
+ * @param results
+ * @returns {*}
+ */
+const hasErrors = (results) => results.errors && results.errors.length;
+
+/**
  * Get the first error message from results to switch.
  *
  * @param results
  * @returns {string|*}
  */
-const getCurrentError = (results) => {
-  if (results.errors && results.errors.length) {
+const getFirstError = (results) => {
+  if (hasErrors(results)) {
     return results.errors[0].error;
   }
   return "";
@@ -174,14 +182,14 @@ const getLogoErrorsFilesString = (results) => {
 };
 
 /**
- * Parses the resulting errors and generates comments accordingly.
+ * Creates a single error message to be combined afterwards.
  *
+ * @param currentError
  * @param results
  * @param replacements
- * @returns {string|*}
+ * @returns {string}
  */
-const createMessageFromResults = (results, replacements = {}) => {
-  const currentError = getCurrentError(results);
+const createSingleErrorMessage = (currentError, results, replacements) => {
   switch (true) {
     case currentError === ERRORS.NO_FILES_CHANGED:
       return MARKDOWN_CONTENTS[currentError]();
@@ -231,6 +239,88 @@ const createMessageFromResults = (results, replacements = {}) => {
     default:
       return MARKDOWN_CONTENTS["ALL_OK"]();
   }
+};
+
+/**
+ * Parses the resulting errors and generates comments accordingly.
+ *
+ * @param results
+ * @param replacements
+ * @returns {string|*}
+ */
+const createMessageFromResults = (results, replacements = {}) => {
+  // First check if AOK.
+  const currentError = getFirstError(results);
+  if (!hasErrors(results) || currentError === "") {
+    return createSingleErrorMessage(currentError, replacements);
+  }
+
+  // Setup duplicate message prevention.
+  let checkedForInvalidExtension = false;
+  let checkedForProjectDuplication = false;
+  let checkedForInvalidFiles = false;
+  let checkedForMissingTags = false;
+  let checkedForInvalidCategories = false;
+  let checkedForInvalidLogoFiles = false;
+  let checkedForLogoErrors = false;
+
+  // Else loop over errors & combine message.
+  return results.errors
+    .reduce((allMessages, { error: currentErrorInResultSet }) => {
+      let createMessage;
+      switch (true) {
+        case currentErrorInResultSet === ERRORS.EXTENSION_INVALID &&
+          !checkedForInvalidExtension:
+          createMessage = true;
+          checkedForInvalidExtension = true;
+          break;
+        case currentErrorInResultSet === ERRORS.PROJECT_DUPLICATION &&
+          !checkedForProjectDuplication:
+          createMessage = true;
+          checkedForProjectDuplication = true;
+          break;
+        case currentErrorInResultSet === ERRORS.DATA_INVALID &&
+          !checkedForInvalidFiles:
+          createMessage = true;
+          checkedForInvalidFiles = true;
+          break;
+        case Object.keys(COMBINED_MISSING_TAG_ERRORS).includes(
+          currentErrorInResultSet
+        ) && !checkedForMissingTags:
+          createMessage = true;
+          checkedForMissingTags = true;
+          break;
+        case currentErrorInResultSet === ERRORS.CATEGORY_INVALID &&
+          !checkedForInvalidCategories:
+          createMessage = true;
+          checkedForInvalidCategories = true;
+          break;
+        case currentErrorInResultSet === ERRORS.LOGO_INVALID &&
+          !checkedForInvalidLogoFiles:
+          createMessage = true;
+          checkedForInvalidCategories = true;
+          break;
+        case COMBINED_LOGO_ERRORS.includes(currentErrorInResultSet) &&
+          !checkedForLogoErrors:
+          createMessage = true;
+          checkedForLogoErrors = true;
+          break;
+        default:
+          createMessage =
+            currentErrorInResultSet === ERRORS.NO_FILES_CHANGED ||
+            currentError === "";
+      }
+      if (createMessage) {
+        const currentMessage = createSingleErrorMessage(
+          currentErrorInResultSet,
+          results,
+          replacements
+        );
+        allMessages.push(currentMessage);
+      }
+      return allMessages;
+    }, [])
+    .join(`\n`);
 };
 
 module.exports = { createMessageFromResults };
