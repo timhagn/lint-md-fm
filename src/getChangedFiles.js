@@ -2,9 +2,23 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const { initOctokit } = require("./reporter");
 
-const getChangedFiles = async (repoToken, debug) => {
+/**
+ * This function returns a list with all file that have been changed.
+ *
+ * @param reporter
+ * @param repoToken
+ * @param debug
+ * @returns {Promise<{removedFormatted: string, renamedFormatted: string, addedModifiedFormatted: string, allFormatted: string, addedFormatted: string, modifiedFormatted: string}>}
+ */
+const getChangedFiles = async (reporter, repoToken, debug) => {
   try {
-    const octokit = initOctokit(repoToken, debug);
+    // Do we have an existing reporter?
+    let octokit;
+    if (!reporter) {
+      octokit = initOctokit(repoToken, debug);
+    } else {
+      octokit = reporter;
+    }
     const context = github.context;
 
     const eventName = context.eventName;
@@ -13,13 +27,13 @@ const getChangedFiles = async (repoToken, debug) => {
     let base;
     let head;
 
-    core.notice(JSON.stringify(context.payload));
+    // core.notice(JSON.stringify(context.payload));
 
     switch (eventName) {
       case "pull_request":
       case "pull_request_target":
-        base = context.payload.base_ref;
-        head = context.payload.head_ref;
+        base = context.payload.base.ref;
+        head = context.payload.head.ref;
         break;
       case "push":
         base = context.payload.before;
@@ -44,13 +58,14 @@ const getChangedFiles = async (repoToken, debug) => {
       head = "";
     }
 
+    const basehead = `${base}...${head}`;
+
     // Use GitHub's compare two commits API.
     // https://developer.github.com/v3/repos/commits/#compare-two-commits
-    const response = await octokit.rest.repos.compareCommits({
-      base,
-      head,
+    const response = await octokit.rest.repos.compareCommitsWithBasehead({
       owner: context.repo.owner,
       repo: context.repo.repo,
+      basehead,
     });
 
     // Ensure that the request was successful.
