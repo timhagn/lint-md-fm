@@ -59,7 +59,7 @@ const isMessagePresent = (message, comments) => {
  * @param debug
  * @returns {InstanceType<typeof GitHub>}
  */
-const initReporter = (token, debug) => {
+const initOctokit = (token, debug) => {
   const opts = {};
   if (debug === "true") opts.log = console;
 
@@ -86,7 +86,7 @@ const reporterComment = async (
   // Do we have an existing reporter?
   let octokit;
   if (!reporter) {
-    octokit = initReporter(repoToken, debug);
+    octokit = initOctokit(repoToken, debug);
   } else {
     octokit = reporter;
   }
@@ -151,4 +151,4 @@ const reporterComment = async (
   }
 };
 
-module.exports = { initReporter, reporterComment };
+module.exports = { initOctokit, reporterComment };

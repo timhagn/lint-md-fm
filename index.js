@@ -11,8 +11,9 @@ const { testExtensions } = require("./src/testExtensions");
 const { testFrontmatter } = require("./src/testFrontmatter");
 const { testDuplication } = require("./src/testDuplication");
 const { testLogo } = require("./src/testLogo");
-const { initReporter, reporterComment } = require("./src/reporter");
+const { reporterComment, initOctokit } = require("./src/reporter");
 const fs = require("fs");
+const { getChangedFiles } = require("./src/getChangedFiles");
 
 /**
  * Gets called for unchecked errors.
@@ -63,14 +64,19 @@ const main = async () => {
   // Get all inputs or fall back to defaults.
   const repoToken = core.getInput("github-token", { required: true });
   const debug = core.getInput("debug");
-  const changedFiles = core.getInput("changed-files");
+  // const changedFiles = core.getInput("changed-files");
   const isFuzzySearch = core.getInput("fuzzy-search");
   // Get the directories array from input. The first element is the projects markdown directory and the second one is the images one.
   const directories = core.getMultilineInput("directories") || DEFAULT_FOLDERS;
   const forceCheck = core.getInput("force-check");
 
   // Create a octokit reporter.
-  const reporter = initReporter(repoToken, debug);
+  const reporter = initOctokit(repoToken, debug);
+
+  const { addedModifiedFormatted: changedFiles } = await getChangedFiles(
+    repoToken,
+    debug
+  );
 
   // Only continue if any relevant files have changed.
   if (
