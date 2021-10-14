@@ -26994,17 +26994,17 @@ const getChangedFiles = async (repoToken, debug) => {
     let base;
     let head;
 
-    core.info(JSON.stringify(context.payload));
+    core.notice(JSON.stringify(context.payload));
 
     switch (eventName) {
       case "pull_request":
       case "pull_request_target":
-        base = context.payload.pull_request.base.sha;
-        head = context.payload.pull_request.head.sha;
+        base = context.base_ref;
+        head = context.head_ref;
         break;
       case "push":
-        base = context.payload.before;
-        head = context.payload.after;
+        base = context.before;
+        head = context.after;
         break;
       default:
         core.setFailed(
