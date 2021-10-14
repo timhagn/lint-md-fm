@@ -13,13 +13,13 @@ const getChangedFiles = async (repoToken, debug) => {
     let base;
     let head;
 
-    core.info(JSON.stringify(context.payload));
+    core.notice(JSON.stringify(context.payload));
 
     switch (eventName) {
       case "pull_request":
       case "pull_request_target":
-        base = context.payload.pull_request?.base?.sha;
-        head = context.payload.pull_request?.head?.sha;
+        base = context.payload.pull_request.base.sha;
+        head = context.payload.pull_request.head.sha;
         break;
       case "push":
         base = context.payload.before;
