@@ -27013,8 +27013,8 @@ const getChangedFiles = async (reporter, repoToken, debug) => {
     switch (eventName) {
       case "pull_request":
       case "pull_request_target":
-        base = context.payload.base_ref;
-        head = context.payload.head_ref;
+        base = context.payload.pull_request.base.sha;
+        head = context.payload.pull_request.head.sha;
         break;
       case "push":
         base = context.payload.before;
@@ -28009,6 +28009,7 @@ const main = async () => {
   const reporter = initOctokit(repoToken, debug);
 
   const { addedModifiedFormatted: changedFiles } = await getChangedFiles(
+    reporter,
     repoToken,
     debug
   );

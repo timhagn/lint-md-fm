@@ -74,6 +74,7 @@ const main = async () => {
   const reporter = initOctokit(repoToken, debug);
 
   const { addedModifiedFormatted: changedFiles } = await getChangedFiles(
+    reporter,
     repoToken,
     debug
   );
