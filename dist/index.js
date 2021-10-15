@@ -27029,12 +27029,11 @@ const getChangedFiles = async (reporter, repoToken, debug) => {
 
     // Ensure that the base and head properties are set on the payload.
     if (!base || !head) {
-      core.setFailed(
-        `The base and head commits are missing from the payload for this ${context.eventName} event. ` +
+      core.warning(
+        `The base or head commits are missing from the payload for this ${context.eventName} event. ` +
           "Please submit an issue on this action's GitHub repo."
       );
 
-      // To satisfy TypeScript, even though this is unreachable.
       base = "";
       head = "";
     }
@@ -27051,7 +27050,7 @@ const getChangedFiles = async (reporter, repoToken, debug) => {
 
     // Ensure that the request was successful.
     if (response.status !== 200) {
-      core.setFailed(
+      core.warning(
         `The GitHub API for comparing the base and head commits for this ${context.eventName} event returned ${response.status}, expected 200. ` +
           "Please submit an issue on this action's GitHub repo."
       );
@@ -27059,7 +27058,7 @@ const getChangedFiles = async (reporter, repoToken, debug) => {
 
     // Ensure that the head commit is ahead of the base commit.
     if (response.data.status !== "ahead") {
-      core.setFailed(
+      core.warning(
         `The head commit for this ${context.eventName} event is not ahead of the base commit. ` +
           "Please submit an issue on this action's GitHub repo."
       );
@@ -27075,6 +27074,10 @@ const getChangedFiles = async (reporter, repoToken, debug) => {
       addedModified = [];
     for (const file of files) {
       const filename = file.filename;
+      // Prevent accidentally adding files from history folder.
+      if (filename.includes(".history")) {
+        continue;
+      }
       all.push(filename);
       switch (file.status) {
         case "added":
