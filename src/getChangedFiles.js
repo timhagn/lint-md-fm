@@ -32,8 +32,8 @@ const getChangedFiles = async (reporter, repoToken, debug) => {
     switch (eventName) {
       case "pull_request":
       case "pull_request_target":
-        base = context.payload.base.ref;
-        head = context.payload.head.ref;
+        base = context.payload.base_ref;
+        head = context.payload.head_ref;
         break;
       case "push":
         base = context.payload.before;
