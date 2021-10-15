@@ -27595,8 +27595,8 @@ const checkLogoFile = (extensions, logoPath) => {
       // Check if the extension matches the file format. Works for all svg/png/jpg/jpeg extensions.
       if (meta.type === ext || meta.mime.includes(ext)) {
         const ratio = meta.height / meta.width;
-        // Check the logo image ratio
-        if (ratio < 0.9 || ratio > 1.1) {
+        // Check the logo image ratio, don't throw when inside bounds.
+        if (ratio <= 0.9 || ratio >= 1.1) {
           result.error = ERRORS.LOGO_SIZE;
           result.width = meta.width;
           result.height = meta.height;
