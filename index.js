@@ -192,13 +192,13 @@ const main = async () => {
     };
 
     const combinedStatus =
-      mdExtensionResult.status &&
-      imgExtensionResult.status &&
-      markdownResult.status &&
-      duplicationResult.status &&
-      logoResult.status;
+      mdExtensionResult.status === STATUS.VALID &&
+      imgExtensionResult.status === STATUS.VALID &&
+      markdownResult.status === STATUS.VALID &&
+      duplicationResult.status === STATUS.VALID &&
+      logoResult.status === STATUS.VALID;
 
-    combinedResult.status = combinedStatus;
+    combinedResult.status = combinedStatus ? STATUS.VALID : STATUS.INVALID;
 
     if (combinedStatus === STATUS.VALID) {
       // Add success comment.
