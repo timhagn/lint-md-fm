@@ -106,7 +106,7 @@ Object {
     Object {
       "error": "INVALID_LOGO_NAME",
       "file": "testFiles/logo_invalid.md",
-      "logo": "/img/Pixel Penguins.svg",
+      "logo": "/testImages/Pixel Penguins.svg",
     },
   ],
   "status": "INVALID",

@@ -19,12 +19,19 @@ const getSlugList = (extensions, directory) => {
     const extension = path.extname(filePath);
     if (extensions.includes(extension)) {
       const markdownData = fs.readFileSync(`${directory}/${filePath}`, "utf8");
-      const parsed = matter(markdownData);
-      if (parsed.data && parsed.data.slug) {
-        list.push({
-          slug: parsed.data.slug,
-          filePath: `${directory}/${filePath}`,
-        });
+      try {
+        // Parse the markdown using "gray-matter" package.
+        const parsed = matter(markdownData);
+        if (parsed.data && parsed.data.slug) {
+          list.push({
+            slug: parsed.data.slug,
+            filePath: `${directory}/${filePath}`,
+          });
+        }
+      } catch (_) {
+        // We can ignore markdown errors here, as if the faulty file is an added
+        // one, it will be caught in checkMarkdown() of MarkdownLinter which is
+        // run in testFrontmatter().
       }
     }
   });

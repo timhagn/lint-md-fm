@@ -27,6 +27,24 @@ const getFirstError = (results) => {
 };
 
 /**
+ * Returns all unique invalid Files.
+ *
+ * @param results
+ * @returns {*[]|*}
+ */
+const getInvalidFiles = (results) => {
+  if (results.errors) {
+    return results.errors.reduce((allFiles, { file }) => {
+      if (!allFiles.includes(file)) {
+        allFiles.push(file);
+      }
+      return allFiles;
+    }, []);
+  }
+  return [];
+};
+
+/**
  * Returns all invalid files combined.
  *
  * @param results
@@ -34,7 +52,7 @@ const getFirstError = (results) => {
  */
 const getInvalidFilesString = (results) => {
   if (results.errors) {
-    return results.errors.map(({ file }) => file).join("   ");
+    return getInvalidFiles(results).join("   ");
   }
   return "";
 };
@@ -194,10 +212,9 @@ const createSingleErrorMessage = (currentError, results, replacements) => {
     case currentError === ERRORS.NO_FILES_CHANGED:
       return MARKDOWN_CONTENTS[currentError]();
     case currentError === ERRORS.EXTENSION_INVALID:
-      const invalidExtensionfileReplacements = getInvalidFilesString(results);
       const allExtensionReplacements = {
         ...replacements,
-        INVALID_FILES: invalidExtensionfileReplacements,
+        INVALID_FILES: getInvalidFilesString(results),
       };
       return MARKDOWN_CONTENTS[currentError](allExtensionReplacements);
     case currentError === ERRORS.PROJECT_DUPLICATION:
@@ -323,4 +340,4 @@ const createMessageFromResults = (results, replacements = {}) => {
     .join(`\n`);
 };
 
-module.exports = { createMessageFromResults };
+module.exports = { createMessageFromResults, getInvalidFiles };

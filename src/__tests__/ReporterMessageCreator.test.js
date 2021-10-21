@@ -1,4 +1,10 @@
 const { createMessageFromResults } = require("../ReporterMessageCreator");
+const { runLinterActions } = require("../runLinterActions");
+const { combineResults } = require("../combineResults");
+const {
+  DEFAULT_MARKDOWN_EXTENSIONS,
+  DEFAULT_IMAGE_EXTENSIONS,
+} = require("../constants");
 
 test("check for AOK", () => {
   const allOK = {
@@ -298,6 +304,110 @@ the correct file type / extension!
 
 The following files had invalid or missing logos:  
 **testFiles/logo_format_no_ext.md** had a logo file without extension, **testFiles/apeshit**
+"
+`);
+});
+
+test("check for multiple combined errors from runLinterActions()", () => {
+  const extensionReplacements = {
+    MARKDOWN_EXTENSIONS: DEFAULT_MARKDOWN_EXTENSIONS,
+    IMAGE_EXTENSIONS: DEFAULT_IMAGE_EXTENSIONS,
+  };
+  const changedFiles = ["testFiles/invalid_data.md"];
+  const directories = ["testFiles", "testFiles"];
+
+  const returnedResults = runLinterActions(
+    changedFiles,
+    directories,
+    DEFAULT_MARKDOWN_EXTENSIONS,
+    DEFAULT_IMAGE_EXTENSIONS,
+    false,
+    console.log
+  );
+
+  const combinedResult = combineResults(returnedResults);
+
+  const resultingMessage = createMessageFromResults(
+    combinedResult,
+    extensionReplacements
+  );
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ⚠️ Extensions Invalid!
+
+**The extension of one or more of your committed files is invalid!**  
+
+For your project files they should have one of these: **.md,.mdx**    
+For your logo images they should have one of these: **.svg,.png,.jpg,.jpeg**  
+
+The following files have invalid extensions:  
+**testFiles/invalid_data.md**
+  
+
+## ⚠️ Markdown data Invalid!
+
+**The content of one or more of your committed Markdown files is invalid!**
+
+Check if you correctly closed all strings and suchlike, as well as having
+encapsulated the Frontmatter data by \`---\` before and after!
+
+The following files had invalid data:  
+**testFiles/invalid_data.md**
+
+
+## ⚠️ Markdown has missing Tags!
+
+**One or more of your committed Markdown files have missing tags!**
+
+Be sure to check for & add them!
+
+The following files had missing tags:  
+**testFiles/invalid_data.md** misses the following tags: **slug**
+
+
+## ⚠️ Project has invalid Logo!
+
+**One or more of your committed Projects have invalid logo or missing logos!**
+
+Be sure to add them to you commit, in the correct aspect ratio &
+the correct file type / extension!
+
+The following files had invalid or missing logos:  
+**testFiles/invalid_data.md** had a missing logo file: ****
+"
+`);
+});
+
+test("check for AOK with all_valid files from runLinterActions()", () => {
+  const extensionReplacements = {
+    MARKDOWN_EXTENSIONS: DEFAULT_MARKDOWN_EXTENSIONS,
+    IMAGE_EXTENSIONS: DEFAULT_IMAGE_EXTENSIONS,
+  };
+  const changedFiles = ["testFiles/all_valid.md", "testImages/all_valid.png"];
+  const directories = ["testFiles", "testImages"];
+
+  const returnedResults = runLinterActions(
+    changedFiles,
+    directories,
+    DEFAULT_MARKDOWN_EXTENSIONS,
+    DEFAULT_IMAGE_EXTENSIONS,
+    false,
+    console.log
+  );
+
+  const combinedResult = combineResults(returnedResults);
+
+  const resultingMessage = createMessageFromResults(
+    combinedResult,
+    extensionReplacements
+  );
+  expect(resultingMessage).toMatchInlineSnapshot(`
+"
+## ✅ Project files checked and OK.
+
+Please give the community and us some time to check it out before it gets merged!
+
+Thanks for adding it!
 "
 `);
 });

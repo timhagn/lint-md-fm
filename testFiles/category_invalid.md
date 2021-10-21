@@ -6,7 +6,7 @@ logline: >-
   The world's favorite party game meets Solana. Reimagine classic mafia with
   real stakes games and exclusive NFT minting events.
 cta: "https://cryptomafia.gg"
-logo: /img/cryptomafia.svg
+logo: /testFiles/all_valid.png
 category: "app, nfts, test"
 status: live
 twitter: "https://twitter.com/cryptomafiagg"

@@ -3,7 +3,7 @@ date: "2021-07-02"
 title: "sodi"
 logline: "SODI is the currency that powers the SODI social environment system. "
 cta: "https://www.soldick.xyz/"
-logo: /img/sodi.png
+logo: /testFiles/all_valid.png
 category: app
 status: building
 website: https://www.soldick.xyz/

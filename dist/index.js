@@ -26587,6 +26587,24 @@ const getFirstError = (results) => {
 };
 
 /**
+ * Returns all unique invalid Files.
+ *
+ * @param results
+ * @returns {*[]|*}
+ */
+const getInvalidFiles = (results) => {
+  if (results.errors) {
+    return results.errors.reduce((allFiles, { file }) => {
+      if (!allFiles.includes(file)) {
+        allFiles.push(file);
+      }
+      return allFiles;
+    }, []);
+  }
+  return [];
+};
+
+/**
  * Returns all invalid files combined.
  *
  * @param results
@@ -26594,7 +26612,7 @@ const getFirstError = (results) => {
  */
 const getInvalidFilesString = (results) => {
   if (results.errors) {
-    return results.errors.map(({ file }) => file).join("   ");
+    return getInvalidFiles(results).join("   ");
   }
   return "";
 };
@@ -26754,10 +26772,9 @@ const createSingleErrorMessage = (currentError, results, replacements) => {
     case currentError === ERRORS.NO_FILES_CHANGED:
       return MARKDOWN_CONTENTS[currentError]();
     case currentError === ERRORS.EXTENSION_INVALID:
-      const invalidExtensionfileReplacements = getInvalidFilesString(results);
       const allExtensionReplacements = {
         ...replacements,
-        INVALID_FILES: invalidExtensionfileReplacements,
+        INVALID_FILES: getInvalidFilesString(results),
       };
       return MARKDOWN_CONTENTS[currentError](allExtensionReplacements);
     case currentError === ERRORS.PROJECT_DUPLICATION:
@@ -26883,7 +26900,58 @@ const createMessageFromResults = (results, replacements = {}) => {
     .join(`\n`);
 };
 
-module.exports = { createMessageFromResults };
+module.exports = { createMessageFromResults, getInvalidFiles };
+
+
+/***/ }),
+
+/***/ 8325:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { STATUS } = __nccwpck_require__(4906);
+
+const combineResults = ({
+  mdExtensionResult,
+  imgExtensionResult,
+  markdownResult,
+  duplicationResult,
+  logoResult,
+}) => {
+  const combinedResult = {
+    status: "",
+    validFiles: [],
+    errors: [],
+  };
+
+  const combinedStatus =
+    mdExtensionResult.status === STATUS.VALID &&
+    imgExtensionResult.status === STATUS.VALID &&
+    markdownResult.status === STATUS.VALID &&
+    duplicationResult.status === STATUS.VALID &&
+    logoResult.status === STATUS.VALID;
+
+  combinedResult.status = combinedStatus ? STATUS.VALID : STATUS.INVALID;
+
+  combinedResult["validFiles"] = [
+    ...(mdExtensionResult.validFiles ? mdExtensionResult.validFiles : []),
+    ...(imgExtensionResult.validFiles ? imgExtensionResult.validFiles : []),
+    ...(markdownResult.validFiles ? markdownResult.validFiles : []),
+    ...(duplicationResult.validFiles ? duplicationResult.validFiles : []),
+    ...(logoResult.validFiles ? logoResult.validFiles : []),
+  ];
+
+  combinedResult["errors"] = [
+    ...(mdExtensionResult.errors ? mdExtensionResult.errors : []),
+    ...(imgExtensionResult.errors ? imgExtensionResult.errors : []),
+    ...(markdownResult.errors ? markdownResult.errors : []),
+    ...(duplicationResult.errors ? duplicationResult.errors : []),
+    ...(logoResult.errors ? logoResult.errors : []),
+  ];
+
+  return combinedResult;
+};
+
+module.exports = { combineResults };
 
 
 /***/ }),
@@ -27295,6 +27363,93 @@ module.exports = { initOctokit, reporterComment };
 
 /***/ }),
 
+/***/ 6170:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { STATUS } = __nccwpck_require__(4906);
+const { testExtensions } = __nccwpck_require__(1874);
+const { testFrontmatter } = __nccwpck_require__(2989);
+const { testDuplication } = __nccwpck_require__(5970);
+const { testLogo } = __nccwpck_require__(7972);
+
+const runLinterActions = (
+  changedFilesArray,
+  directories,
+  markdownExtensions,
+  imageExtensions,
+  isFuzzySearch,
+  logger
+) => {
+  // Check if all markdown files have valid extensions.
+  logger(`Testing markdown extensions...`);
+  const mdExtensionResult = testExtensions(
+    markdownExtensions,
+    changedFilesArray,
+    directories[0] // markdown directory
+  );
+  // Show errors if any and flag the action as failed.
+  if (mdExtensionResult.status !== STATUS.VALID) {
+    // Create an error comment for invalid project file extensions.
+    logger(JSON.stringify(mdExtensionResult));
+  }
+
+  // Check if all image files have valid extensions.
+  logger(`Testing image extensions...`);
+  const imgExtensionResult = testExtensions(
+    imageExtensions,
+    changedFilesArray,
+    directories[1] // image directory
+  );
+  if (imgExtensionResult.status !== STATUS.VALID) {
+    // Create an error comment for invalid image extensions.
+    logger(JSON.stringify(imgExtensionResult));
+  }
+
+  // Check if all markdown files have valid tags.
+  logger("Testing Markdown Frontmatter...");
+  const markdownResult = testFrontmatter(
+    markdownExtensions,
+    changedFilesArray,
+    directories[0]
+  );
+  if (markdownResult.status !== STATUS.VALID) {
+    logger(JSON.stringify(markdownResult));
+  }
+
+  // Check projects duplication.
+  logger(`Testing project duplication...`);
+  const duplicationResult = testDuplication(
+    mdExtensionResult.validFiles,
+    markdownExtensions,
+    directories[0],
+    isFuzzySearch
+  );
+  if (duplicationResult.status !== STATUS.VALID) {
+    // Create an error comment for duplicate files.
+    logger(JSON.stringify(duplicationResult));
+  }
+
+  // Check if all logo files are in correct format and ratio.
+  logger("Testing Logo Files...");
+  const logoResult = testLogo(imageExtensions, mdExtensionResult.validFiles);
+  if (logoResult.status !== STATUS.VALID) {
+    // Create an error comment for invalid logo files.
+    logger(JSON.stringify(logoResult));
+  }
+  return {
+    mdExtensionResult,
+    imgExtensionResult,
+    markdownResult,
+    duplicationResult,
+    logoResult,
+  };
+};
+
+module.exports = { runLinterActions };
+
+
+/***/ }),
+
 /***/ 5970:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -27319,12 +27474,19 @@ const getSlugList = (extensions, directory) => {
     const extension = path.extname(filePath);
     if (extensions.includes(extension)) {
       const markdownData = fs.readFileSync(`${directory}/${filePath}`, "utf8");
-      const parsed = matter(markdownData);
-      if (parsed.data && parsed.data.slug) {
-        list.push({
-          slug: parsed.data.slug,
-          filePath: `${directory}/${filePath}`,
-        });
+      try {
+        // Parse the markdown using "gray-matter" package.
+        const parsed = matter(markdownData);
+        if (parsed.data && parsed.data.slug) {
+          list.push({
+            slug: parsed.data.slug,
+            filePath: `${directory}/${filePath}`,
+          });
+        }
+      } catch (_) {
+        // We can ignore markdown errors here, as if the faulty file is an added
+        // one, it will be caught in checkMarkdown() of MarkdownLinter which is
+        // run in testFrontmatter().
       }
     }
   });
@@ -27937,7 +28099,7 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(7928);
-
+const fs = __nccwpck_require__(5747);
 const {
   STATUS,
   ERRORS,
@@ -27945,13 +28107,11 @@ const {
   DEFAULT_MARKDOWN_EXTENSIONS,
   DEFAULT_IMAGE_EXTENSIONS,
 } = __nccwpck_require__(4906);
-const { testExtensions } = __nccwpck_require__(1874);
-const { testFrontmatter } = __nccwpck_require__(2989);
-const { testDuplication } = __nccwpck_require__(5970);
-const { testLogo } = __nccwpck_require__(7972);
 const { reporterComment, initOctokit } = __nccwpck_require__(572);
-const fs = __nccwpck_require__(5747);
 const { getChangedFiles } = __nccwpck_require__(481);
+const { runLinterActions } = __nccwpck_require__(6170);
+const { combineResults } = __nccwpck_require__(8325);
+const { getInvalidFiles } = __nccwpck_require__(7028);
 
 /**
  * Gets called for unchecked errors.
@@ -28041,106 +28201,33 @@ const main = async () => {
       IMAGE_EXTENSIONS: imageExtensions,
     };
 
-    // Check if all markdown files have valid extensions.
-    core.notice(`Testing markdown extensions...`);
-    const mdExtensionResult = testExtensions(
-      markdownExtensions,
+    // Run all linting tests.
+    const returnedResults = runLinterActions(
       changedFilesArray,
-      directories[0] // markdown directory
-    );
-    // Show errors if any and flag the action as failed.
-    if (mdExtensionResult.status !== STATUS.VALID) {
-      // Create an error comment for invalid project file extensions.
-      await reporterComment(
-        repoToken,
-        debug,
-        mdExtensionResult,
-        extensionReplacements,
-        reporter
-      );
-      core.error(JSON.stringify(mdExtensionResult));
-      core.setFailed(JSON.stringify(mdExtensionResult));
-    }
-
-    // Check if all image files have valid extensions.
-    core.notice(`Testing image extensions...`);
-    const imgExtensionResult = testExtensions(
+      directories,
+      markdownExtensions,
       imageExtensions,
-      changedFilesArray,
-      directories[1] // image directory
+      isFuzzySearch,
+      core.notice
     );
-    if (imgExtensionResult.status !== STATUS.VALID) {
-      // Create an error comment for invalid image extensions.
-      await reporterComment(
-        repoToken,
-        debug,
-        imgExtensionResult,
-        extensionReplacements,
-        reporter
-      );
-      core.error(JSON.stringify(imgExtensionResult));
-      core.setFailed(JSON.stringify(imgExtensionResult));
-    }
 
-    // Check if all markdown files have valid tags.
-    core.notice("Testing Markdown Frontmatter...");
-    const markdownResult = testFrontmatter(
-      markdownExtensions,
-      changedFilesArray,
-      directories[0]
-    );
-    if (markdownResult.status !== STATUS.VALID) {
-      // Create an error comment for invalid files or their Markdown content.
-      await reporterComment(repoToken, debug, markdownResult, {}, reporter);
-      core.error(JSON.stringify(markdownResult));
-      core.setFailed(JSON.stringify(markdownResult));
-    }
+    // Combine results from all linting tests.
+    const combinedResult = combineResults(returnedResults);
 
-    // Check projects duplication.
-    core.notice(`Testing project duplication...`);
-    const duplicationResult = testDuplication(
-      mdExtensionResult.validFiles,
-      markdownExtensions,
-      directories[0],
-      isFuzzySearch
-    );
-    if (duplicationResult.status !== STATUS.VALID) {
-      // Create an error comment for duplicate files.
-      await reporterComment(repoToken, debug, duplicationResult, {}, reporter);
-      core.error(JSON.stringify(duplicationResult));
-      core.setFailed(JSON.stringify(duplicationResult));
-    }
-
-    // Check if all logo files are in correct format and ratio.
-    core.notice("Testing Logo Files...");
-    const logoResult = testLogo(imageExtensions, mdExtensionResult.validFiles);
-    if (logoResult.status !== STATUS.VALID) {
-      // Create an error comment for invalid logo files.
-      await reporterComment(repoToken, debug, logoResult, {}, reporter);
-      core.error(JSON.stringify(logoResult));
-      core.setFailed(JSON.stringify(logoResult));
-    }
-
-    const combinedResult = {
-      ...mdExtensionResult,
-      ...imgExtensionResult,
-      ...markdownResult,
-      ...duplicationResult,
-      ...logoResult,
-    };
-
-    const combinedStatus =
-      mdExtensionResult.status === STATUS.VALID &&
-      imgExtensionResult.status === STATUS.VALID &&
-      markdownResult.status === STATUS.VALID &&
-      duplicationResult.status === STATUS.VALID &&
-      logoResult.status === STATUS.VALID;
-
-    combinedResult.status = combinedStatus ? STATUS.VALID : STATUS.INVALID;
-
-    if (combinedStatus === STATUS.VALID) {
+    if (combinedResult.status === STATUS.VALID) {
       // Add success comment.
       await reporterComment(repoToken, debug, combinedResult, {}, reporter);
+    } else {
+      // Create error comments for invalid results.
+      await reporterComment(
+        repoToken,
+        debug,
+        combinedResult,
+        extensionReplacements,
+        reporter
+      );
+      core.error(JSON.stringify(combinedResult));
+      core.setFailed(JSON.stringify(combinedResult));
     }
 
     core.notice(
@@ -28152,8 +28239,8 @@ const main = async () => {
     core.setOutput(
       "changed",
       JSON.stringify({
-        ...combinedResult,
-        logoResult,
+        validFiles: combinedResult.validFiles,
+        invalidFiles: getInvalidFiles(combinedResult),
       })
     );
   } else {

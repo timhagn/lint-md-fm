@@ -4,7 +4,7 @@ date: "2021-08-01"
 title: "Pixel Penguins"
 logline: "The First Official Penguin Project On Solana."
 cta: "http://pixelpenguins.holaplex.com/"
-logo: /img/Pixel Penguins.svg
+logo: /testImages/Pixel Penguins.svg
 category: metaplex, nft
 status: live
 website: http://pixelpenguins.holaplex.com/
